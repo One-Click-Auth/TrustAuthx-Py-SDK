@@ -70,3 +70,20 @@ class AuthLiteClient:
                                                                             response.status_code, 
                                                                             response.text)
                             )
+    
+    def revoke_token(self, RefreshToken:bool = True, AccessToken:bool = False, revoke_all_tokens:bool = False) -> bool:
+        url = 'https://api.trustauthx.com/api/user/me/token/'
+        headers = {'accept': 'application/json'}
+        tt=True if AccessToken else False
+        t = AccessToken if AccessToken else RefreshToken
+        params = {
+            'Token': t,
+            'api_key': self.api_key,
+            'signed_key': self.secret_key,
+            'AccessToken': tt,
+            'SpecificTokenOnly':not revoke_all_tokens,
+                }
+        response = requests.delete(url, headers=headers, params=params)
+        if response.status_code == 200:return response.json()
+        else:raise HTTPError(
+            'Request failed with status code : {} \n this code contains a msg : {}'.format(response.status_code, response.text))
