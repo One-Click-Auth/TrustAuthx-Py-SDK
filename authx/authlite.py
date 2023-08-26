@@ -2,6 +2,7 @@ import requests
 from requests.exceptions import HTTPError
 from jose import JWTError, jwt
 from jose.constants import ALGORITHMS
+import json
 
 # authx/authlite.py
 
@@ -25,6 +26,41 @@ class AuthLiteClient:
         if self.org_id:return f"https://app.trustauthx.com/widget/login/?org_id={self.org_id}"
         else:raise ValueError("must provide org_id")
 
+    def generate_edit_user_url(self, access_token, url) -> str:
+        # Generate an authentication url for the given org
+        headers = {'accept': 'application/json'}
+        params = {
+            'AccessToken': access_token,
+            'api_key': self.api_key,
+            'signed_key': self.signed_key,
+            'url':url
+                 }
+        url = "https://api.trustauthx.com/api/user/me/settings/"
+        req = requests.Request('GET', url, params=params, headers=headers).prepare()
+        return req.url
+
+    def re_auth(self, code):
+        url = "https://api.trustauthx.com/api/user/me/widget/re-auth/token"
+        params = {
+            "code": code,
+            'api_key': self.api_key,
+            'signed_key': self.signed_key
+        }
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers, params=params)
+        if response.status_code == 200:
+            rtn = self.jwt_decode(self.secret_key,response.json())
+            sub = json.loads(rtn["sub"])
+            rtn.pop("sub")
+            rtn["email"] = sub["email"]
+            rtn["uid"] = sub["uid"]
+            return rtn
+        else:raise HTTPError(
+            'Request failed with status code : {} \n this code contains a msg : {}'.format(
+                                                                            response.status_code, 
+                                                                            response.text)
+                            )
+
     def get_user(self, token) -> dict:
         # Validate the given authentication token
         """returns a dict containing 'access_token', 'refresh_token', 'img', 'sub'"""
@@ -36,7 +72,13 @@ class AuthLiteClient:
             'signed_key': self.signed_key
                  }
         response = requests.get(url, headers=headers, params=params)
-        if response.status_code == 200:return self.jwt_decode(self.secret_key,response.json())
+        if response.status_code == 200:
+            rtn = self.jwt_decode(self.secret_key,response.json())
+            sub = json.loads(rtn["sub"])
+            rtn.pop("sub")
+            rtn["email"] = sub["email"]
+            rtn["uid"] = sub["uid"]
+            return rtn
         else:raise HTTPError(
             'Request failed with status code : {} \n this code contains a msg : {}'.format(
                                                                             response.status_code, 
