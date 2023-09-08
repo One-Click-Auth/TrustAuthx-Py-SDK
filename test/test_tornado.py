@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 from tornado.options import define, options, parse_command_line
 from beaker.middleware import SessionMiddleware
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 define("port", default=3535, help="run on the given port", type=int)
 

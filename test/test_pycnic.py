@@ -1,6 +1,6 @@
 from pycnic.core import WSGI, Handler
 from pycnic.errors import HTTP_400, HTTP_401
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 class AuthHandler(Handler):
     def __init__(self):

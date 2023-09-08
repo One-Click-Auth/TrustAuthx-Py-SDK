@@ -2,7 +2,7 @@ from pyramid.config import Configurator
 from pyramid.response import Response
 from pyramid.httpexceptions import HTTPFound, HTTPBadRequest
 from pyramid.session import SignedCookieSessionFactory
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 auth_lite_client = AuthLiteClient(api_key="f28ffe7f2e4a47d6a796b0c2df073aeeAVVQBFSSCXIQWNQIEPBI", 
                         secret_key="8ad9741c8fd5a8f286fc34eba21e0871e63dff3dd67e3ea3a1b43077db9531f7", 

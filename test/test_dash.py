@@ -4,7 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from flask import Flask, redirect, request
 from flask_session import Session
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 server = Flask(__name__)
 server.config['SECRET_KEY'] = 'your_secret_key'

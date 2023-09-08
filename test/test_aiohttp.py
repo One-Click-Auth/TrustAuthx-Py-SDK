@@ -1,7 +1,7 @@
 from aiohttp import web
 from aiohttp_session import setup, get_session, session_middleware
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 app = web.Application()
 

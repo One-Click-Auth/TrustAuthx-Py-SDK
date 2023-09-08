@@ -1,7 +1,7 @@
 import hug
 from hug.middleware import SessionMiddleware
 from beaker.middleware import SessionMiddleware as BeakerSessionMiddleware
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 api = hug.API(__name__)
 api.http.add_middleware(SessionMiddleware(BeakerSessionMiddleware({}, key='session_id')))

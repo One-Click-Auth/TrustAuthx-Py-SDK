@@ -1,5 +1,6 @@
 from flask import Flask, request, redirect, session
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
+
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"

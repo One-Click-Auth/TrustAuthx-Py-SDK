@@ -1,6 +1,6 @@
 from sanic import Sanic, response
 from sanic_session import Session, InMemorySessionInterface
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 app = Sanic(__name__)
 Session(app, interface=InMemorySessionInterface())
