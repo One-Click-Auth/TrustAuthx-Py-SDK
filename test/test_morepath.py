@@ -1,5 +1,5 @@
 import morepath
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 from webob.exc import HTTPException
 from webob import Response, Request
 from starlette.middleware.sessions import SessionMiddleware

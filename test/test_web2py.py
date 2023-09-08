@@ -1,7 +1,7 @@
 import web
 from web import form
 from beaker.middleware import SessionMiddleware
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 urls = (
     '/', 'root',

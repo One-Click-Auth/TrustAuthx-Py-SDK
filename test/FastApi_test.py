@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Response, Request
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 from starlette.middleware.sessions import SessionMiddleware
 import uvicorn
 from starlette.responses import JSONResponse

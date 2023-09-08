@@ -2,7 +2,7 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse, RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.routing import Route
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 app = Starlette()
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")

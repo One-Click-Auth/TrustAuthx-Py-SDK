@@ -1,5 +1,5 @@
 import cherrypy
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 class Root(object):
     

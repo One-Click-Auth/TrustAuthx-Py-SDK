@@ -1,6 +1,6 @@
 from tg import expose, TGController, AppConfig, redirect, validate, request, response
 from beaker.middleware import SessionMiddleware
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 class RootController(TGController):
     

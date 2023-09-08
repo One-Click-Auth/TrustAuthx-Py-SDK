@@ -1,6 +1,6 @@
 from bottle import Bottle, request, response, redirect
 from beaker.middleware import SessionMiddleware
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 app = Bottle()
 

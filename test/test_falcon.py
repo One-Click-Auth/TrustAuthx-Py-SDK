@@ -1,6 +1,6 @@
 import falcon
 from falcon import Request, Response
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 
 class AuthMiddleware(object):
     

@@ -1,5 +1,5 @@
 from growler import App
-from authlite import AuthLiteClient
+from trustauthx.authlite import AuthLiteClient
 from starlette.middleware.sessions import SessionMiddleware
 from growler.http import Response
 from growler.middleware.sessions import SessionMiddleware
