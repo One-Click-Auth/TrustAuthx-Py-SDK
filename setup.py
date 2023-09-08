@@ -4,6 +4,7 @@ setup(
     name='trustauthx',
     version='0.1.0',
     description='Official connector SDK for TrustAuthx',
+    long_description='https://docs.trustauthx.com',
     author='moonlightnexus',
     author_email='nexus@trustauthx.com',
     url="https://github.com/One-Click-Auth/TrustAuthx-Py-SDK.git",
