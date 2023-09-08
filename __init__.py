@@ -1,4 +1,4 @@
-from .authx.authlite import AuthLiteClient
+from .trustauthx.authlite import AuthLiteClient
 
 __all__ = [
     'AuthLiteClient'
