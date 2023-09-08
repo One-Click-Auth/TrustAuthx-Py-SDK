@@ -62,7 +62,7 @@ jobs:
         
         # Create the issue
         curl --request POST \
-             --url https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/issues \
+             --url https://api.github.com/repos/One-Click-Auth/TrustAuthx-Py-SDK/issues \
              --header 'authorization: Bearer ${{ secrets.MY_GITHUB_TOKEN }}' \
              --header 'content-type: application/json' \
              --data '{"title":"'$ISSUE_TITLE'","body":"'$ISSUE_BODY'"}'
