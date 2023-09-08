@@ -52,7 +52,7 @@ jobs:
     - name: Check for errors and create issue
       if: ${{ failure() }}
       run: |
-        Set your GitHub username and repository 
+        # Set your GitHub username and repository 
         REPO_OWNER=One-Click-Auth
         REPO_NAME=TrustAuthx-Py-SDK
         
