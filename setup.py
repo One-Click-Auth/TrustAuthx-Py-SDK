@@ -31,4 +31,9 @@ setup(
         "charset-normalizer>=3.2.0",
         "python-jose>=3.3.0",
                      ],
+    entry_points={
+        'console_scripts': [
+            'trustauthx = trustauthx.cli:main',
+        ],
+    },
 )
