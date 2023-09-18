@@ -29,7 +29,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == 'neurocraft':
+    if args.command == 'neuroform':
         sdk = LLMAI_Inter(
                     api_key=api_key, 
                     secret_key=api_secret, 
