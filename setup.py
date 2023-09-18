@@ -1,10 +1,17 @@
 from setuptools import setup, find_packages
+import os
+
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 
 setup(
     name='trustauthx',
-    version='0.2.1',
+    version='0.2.2',
     description='Official connector SDK for TrustAuthx',
-    long_description='https://docs.trustauthx.com',
+    long_description=long_description,
+    long_description_content_type='text/markdown',  # This is important!
     author='moonlightnexus',
     author_email='nexus@trustauthx.com',
     url="https://github.com/One-Click-Auth/TrustAuthx-Py-SDK.git",
