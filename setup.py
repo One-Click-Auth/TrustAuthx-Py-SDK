@@ -8,7 +8,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='trustauthx',
-    version='0.4.3',
+    version='0.4.4',
     description='Official connector SDK for TrustAuthx',
     long_description=long_description,
     long_description_content_type='text/markdown',  # This is important!
@@ -26,7 +26,7 @@ setup(
     install_requires=[
         "certifi>=2023.5.7",
         "cffi>=1.15.1",
-        "cryptography>=41.0.2",
+        "cryptography==3.4.8",
         "ecdsa>=0.18.0",
         "idna>=3.4",
         "pyasn1>=0.5.0",
