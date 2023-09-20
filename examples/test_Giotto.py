@@ -37,6 +37,8 @@ def root(request):
 
 @app.route("/user")
 def get_user(request, code):
+    acto = request.session.get("access_token")
+    if acto: return {"user": auth_lite_client.get_user_data(acto)}
     try:
         user = auth_client(request).get_user(code)
         request.session["access_token"] = user['access_token']

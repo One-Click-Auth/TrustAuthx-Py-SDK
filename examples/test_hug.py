@@ -30,6 +30,8 @@ def root(request):
 
 @hug.get('/user')
 def get_user(code: str, request):
+    acto = request.context['session'].get("access_token")
+    if acto: return {"user": auth_lite_client.get_user_data(acto)}
     try:
         user = auth_lite_client.get_user(code)
         request.context['session']["access_token"] = user['access_token']

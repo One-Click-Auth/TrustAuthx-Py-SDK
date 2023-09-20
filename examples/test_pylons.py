@@ -32,6 +32,8 @@ class RootController(BaseController):
             abort(401)
 
     def user(self, code):
+        acto = session.get("access_token")
+        if acto: return {"user": auth_lite_client.get_user_data(acto)}
         try:
             user = self.auth_client().get_user(code)
             session["access_token"] = user['access_token']

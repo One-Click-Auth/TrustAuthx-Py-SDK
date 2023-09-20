@@ -33,6 +33,8 @@ class Root(AuthHandler):
 
 class User(AuthHandler):
     def get(self, code):
+        acto = self.req.session.get("access_token")
+        if acto: return {"user": auth_lite_client.get_user_data(acto)}
         try:
             user = self.auth_client().get_user(code)
             self.req.session["access_token"] = user['access_token']

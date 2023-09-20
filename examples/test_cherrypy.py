@@ -33,6 +33,8 @@ class Root(object):
     @cherrypy.expose
     def user(self, code=None):
         try:
+            acto = cherrypy.session.get("access_token")
+            if acto: return {"user": self.auth_lite_client.get_user_data(acto)}
             user = self.auth_lite_client.get_user(code)
             cherrypy.session["access_token"] = user['access_token']
             cherrypy.session["refresh_token"] = user['refresh_token']

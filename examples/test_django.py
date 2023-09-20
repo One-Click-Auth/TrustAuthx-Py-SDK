@@ -25,6 +25,8 @@ def root(request):
     return redirect(auth_lite_client.generate_url())
 
 def get_user(request):
+    acto = request.session.get("access_token")
+    if acto: return {"user": auth_lite_client.get_user_data(acto)}
     code = request.GET.get('code')
     try:
         user = auth_lite_client.get_user(code)

@@ -27,7 +27,9 @@ class RootController(TGController):
         return redirect(self.auth_lite_client.generate_url())
     
     @expose('json')
-    def user(self, code=None):
+    def user(self, code=None, AccessToken=request.environ['beaker.session'].get("access_token")):
+        acto = AccessToken
+        if acto: return {"user": self.auth_lite_client.get_user_data(acto)}
         try:
             user = self.auth_lite_client.get_user(code)
             request.environ['beaker.session']["access_token"] = user['access_token']

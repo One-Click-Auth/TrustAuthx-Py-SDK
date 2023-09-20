@@ -35,8 +35,8 @@ def root(client: AuthLiteClient = Depends(auth_client)):return RedirectResponse(
 
 @app.get("/user")
 def get_user(code: str, request: Request, client: AuthLiteClient = Depends(auth_client)):
-    # acto = request.session.get("access_token")
-    # if acto: return {"user": client.get_user_data(acto)}
+    acto = request.session.get("access_token")
+    if acto: return {"user": client.get_user_data(acto)}
     try:
         user = client.get_user(code)
         request.session["access_token"] = user['access_token']

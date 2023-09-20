@@ -41,6 +41,8 @@ class RootHandler(BaseHandler):
 class GetUserHandler(BaseHandler):
     
     def get(self):
+        acto = session.get("access_token")
+        if acto: return {"user": auth_lite_client.get_user_data(acto)}
         code = self.get_argument('code')
         try:
             user = auth_lite_client.get_user(code)

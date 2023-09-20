@@ -53,6 +53,8 @@ class User(object):
 
 @App.json(model=User)
 def get_user(self, request):
+    acto = request.session.get("access_token")
+    if acto: return {"user": auth_lite_client.get_user_data(acto)}
     try:
         user = auth_client(request).get_user(self.code)
         request.session["access_token"] = user['access_token']

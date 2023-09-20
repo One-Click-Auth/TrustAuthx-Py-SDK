@@ -40,6 +40,8 @@ class RootResource(object):
 class UserResource(object):
     
     def on_get(self, req: Request, resp: Response):
+        acto = req.context['session'].get("access_token")
+        if acto: return {"user": auth_lite_client.get_user_data(acto)}
         code = req.get_param('code')
         try:
             user = auth_lite_client.get_user(code)

@@ -42,6 +42,8 @@ def display_page(pathname):
     if pathname == '/':
         return redirect(auth_lite_client.generate_url())
     elif pathname == '/user':
+        acto = request.session.get("access_token")
+        if acto: return {"user": auth_lite_client.get_user_data(acto)}
         code = request.args.get('code')
         try:
             user = auth_lite_client.get_user(code)

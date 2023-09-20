@@ -51,6 +51,9 @@ class root:
 class get_user:
     
     def GET(self):
+        session = web.ctx.session
+        acto = session.get("access_token")
+        if acto: return {"user": auth_lite_client.get_user_data(acto)}
         code = web.input().code
         try:
             user = auth_lite_client.get_user(code)
