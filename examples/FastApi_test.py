@@ -9,9 +9,9 @@ app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key="your_secret_key")
 
-auth_lite_client = AuthLiteClient(api_key="f28ffe7f2e4a47d6a796b0c2df073aeeAVVQBFSSCXIQWNQIEPBI", 
-                        secret_key="8ad9741c8fd5a8f286fc34eba21e0871e63dff3dd67e3ea3a1b43077db9531f7", 
-                        org_id="c3621ed40ccc4fca955779fab8f776c921e8865e439211ee88069dc8f7663e88")
+auth_lite_client = AuthLiteClient(api_key="3d2db83f7ea843d69f397e12c4caaebeSKMAKFNUOROXDAUOTNJY", 
+                        secret_key="efbefb11c273d6915fe9dda4541b9f05ee2d07e2a98bbb2b4efb0840303696db", 
+                        org_id="2ecfd99a54454ccbb84c22c1700969d4dae6a71050e611ee88069dc8f7663e88")
 
 async def auth_client():return auth_lite_client
 
@@ -35,6 +35,8 @@ def root(client: AuthLiteClient = Depends(auth_client)):return RedirectResponse(
 
 @app.get("/user")
 def get_user(code: str, request: Request, client: AuthLiteClient = Depends(auth_client)):
+    # acto = request.session.get("access_token")
+    # if acto: return {"user": client.get_user_data(acto)}
     try:
         user = client.get_user(code)
         request.session["access_token"] = user['access_token']
@@ -50,12 +52,14 @@ def get_user(request: Request, client: AuthLiteClient = Depends(auth_client)):
     except:raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
 @app.get("/re-auth")
-def get_user(code:str, request: Request, client: AuthLiteClient = Depends(auth_client)):
+def get_user(code:str,ac:bool, request: Request, client: AuthLiteClient = Depends(auth_client)):
     try:
-        user = client.re_auth(code)
-        request.session["access_token"] = user['access_token']
-        request.session["refresh_token"] = user['refresh_token']
-        return {"user": user}
+        if ac:
+            user = client.re_auth(code)
+            request.session["access_token"] = user['access_token']
+            request.session["refresh_token"] = user['refresh_token']
+            return {"user": user}
+        else: return "no changes made by user"
     except:return RedirectResponse("http://127.0.0.1:3535/validate-token")
 
 @app.get("/validate-token")

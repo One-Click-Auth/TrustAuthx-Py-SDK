@@ -84,6 +84,26 @@ class AuthLiteClient:
                                                                             response.status_code, 
                                                                             response.text)
                             )
+    
+    def get_user_data(self, AccessToken) -> dict:
+        # Validate the given authentication token
+        """returns a dict containing 'access_token', 'refresh_token', 'img', 'sub'"""
+        url = 'https://api.trustauthx.com/api/user/me/data'
+        headers = {'accept': 'application/json'}
+        params = {
+            'AccessToken': AccessToken,
+            'api_key': self.api_key,
+            'signed_key': self.signed_key
+                 }
+        response = requests.get(url, headers=headers, params=params)
+        if response.status_code == 200:
+            rtn = self.jwt_decode(self.secret_key,response.json())
+            return rtn
+        else:raise HTTPError(
+            'Request failed with status code : {} \n this code contains a msg : {}'.format(
+                                                                            response.status_code, 
+                                                                            response.text)
+                            )
 
     def get_access_token_from_refresh_token(self, refresh_token):
         # Store the given authentication token
