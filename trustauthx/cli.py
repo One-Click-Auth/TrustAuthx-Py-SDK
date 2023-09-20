@@ -19,7 +19,7 @@ def check() -> bool:
     api_key = os.environ.get('API_KEY')
     api_secret = os.environ.get('API_SECRET')
     org_id = os.environ.get('ORG_ID')
-    client = LLMAI_Inter(api_key, api_secret, org_id)
+    client = LLMAI_Inter(api_key, api_secret, org_id, "")
     return client.arb_login()
 
 def main():
