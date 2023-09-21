@@ -42,7 +42,7 @@ def main():
         print("Installing dependencies...")
         def install(packages):
             for package in packages:
-                if package:subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+                if str(package).__len__() > 1 :subprocess.check_call([sys.executable, "-m", "pip", "install", package])
                 else:pass
         install(list_depends)
         print("Dependencies installed.")
