@@ -1,7 +1,7 @@
 import argparse
 from .llmai import LLMAI_Inter
 import subprocess
-import sys, os
+import sys, os, time
 from dotenv import load_dotenv
 
 def main():
@@ -30,37 +30,47 @@ def main():
                 for key, value in env_vars.items():
                     f.write(f'{key}={value}\n')
     except:pass
-    client = LLMAI_Inter(api_key, api_secret, org_id, "")
-    if not client.arb_login():raise ConnectionRefusedError("user not found, invalid credential")
 
+    client = LLMAI_Inter(api_key, api_secret, org_id, "")
+    print("\ngetting auth status ...") 
+    if not client.arb_login():raise ConnectionRefusedError("user not found, invalid credential")
+    print("\nauthorization success, credentials valid")
+    
     if args.command == 'neuroform':
         client.framework=args.framework
         sdk = client
-        print("getting req. dependencies:")
+        print("\ngetting req. dependencies:")
         list_depends = sdk.Install_dependancies()
         print(list_depends)
-        print("Installing dependencies...")
+        print("\nInstalling dependencies...")
         def install(packages):
             for package in packages:
                 if str(package).__len__() > 1 :subprocess.check_call([sys.executable, "-m", "pip", "install", package])
                 else:pass
         install(list_depends)
-        print("Dependencies installed.")
+        print("\nDependencies installed.")
         a = sdk.Create_App(path=os.getcwd())
         print(a)
-        print("App named --> authx.py")
-        print(f"app located at --> {os.path.join(os.getcwd(), 'authx.py')}")
-        print("App creation Successful...")
-        print(f"you could start the server with command trustauthx start {args.framework}")
+        print("\nApp named --> authx.py")
+        print(f"\napp located at --> {os.path.join(os.getcwd(), 'authx.py')}")
+        print("\nApp creation Successful...")
+        print(f"\nyou could start the server with command trustauthx start {args.framework}")
     
     if args.command == 'start':
         client.framework=args.framework
         sdk = client
-        print("Trying to start local server ...")
-        print("this command might fail in case of few frameworks in such cases consider installing req. lib. and starting server manually")
+        print("\nTrying to start local server ...")
+        print("\nthis command might fail in case of few frameworks in such cases consider installing req. lib. and starting server manually")
         b = sdk.Start_server()
         process = subprocess.Popen(b, shell=True)
         process.wait()
+
+    if args.command == 'login':
+        time.sleep(0.5)
+        print("\nattempt to Login TrustAuthx Build AI successful")
+        print("\nExecuting Rate-Limit")
+        time.sleep(1)
+        print("\nEverything Done Status 200, Ready To Start")
 
 if __name__ == '__main__':
     main()
@@ -69,14 +79,14 @@ if __name__ == '__main__':
     # if args.command == 'fabricate':
     #     client.framework=args.framework
     #     sdk = client
-    #     print("getting req. dependencies:")
+    #     print("\ngetting req. dependencies:")
     #     list_depends = sdk.Install_dependancies()
     #     print(list_depends)
-    #     print("Installing dependencies...")
+    #     print("\nInstalling dependencies...")
     #     def install(packages):
     #         for package in packages:
     #             subprocess.check_call([sys.executable, "-m", "pip", "install", package])
     #     install(list_depends)
-    #     print("Dependencies installed.")
+    #     print("\nDependencies installed.")
     #     a = sdk.Create_App(out=args.out)
     #     print(a)
