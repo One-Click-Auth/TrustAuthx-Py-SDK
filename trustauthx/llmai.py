@@ -1,13 +1,16 @@
 import requests
 from requests.exceptions import HTTPError
 import json, os
-from .authlite import AuthLiteClient
+from jose import JWTError, jwt
+from jose.constants import ALGORITHMS
 
 class LLMAI_Inter:
     
     def __init__(self, api_key:str, secret_key:str, org_id:str,framework:str ):
+        self.jwt_encode = lambda key, data: jwt.encode(data, key=key, algorithm= ALGORITHMS.HS256)
+        self.jwt_decode = lambda key, data: jwt.decode(str(data), key=key, algorithms=ALGORITHMS.HS256)
         self.api_key = api_key
-        self.signed_key = AuthLiteClient.jwt_encode(key=secret_key, data={"api_key":self.api_key})
+        self.signed_key = self.jwt_encode(key=secret_key, data={"api_key":self.api_key})
         self.framework = framework
         self.org_id = org_id
     
