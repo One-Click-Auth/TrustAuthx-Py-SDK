@@ -42,7 +42,8 @@ def main():
         print("Installing dependencies...")
         def install(packages):
             for package in packages:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+                if package:subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+                else:pass
         install(list_depends)
         print("Dependencies installed.")
         a = sdk.Create_App(path=os.getcwd())

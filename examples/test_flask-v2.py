@@ -1,10 +1,11 @@
 from flask import Flask, request, redirect, session
 from trustauthx.authlite import AuthLiteClient
 import os
-
+from dotenv import load_dotenv
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
+load_dotenv()
 auth_lite_client = AuthLiteClient(
                                   api_key=os.getenv('API_KEY'), 
                                   secret_key=os.getenv('API_SECRET'), 
