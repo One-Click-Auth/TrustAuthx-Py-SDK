@@ -49,7 +49,7 @@ def main():
             org_id = os.environ.get('ORG_ID')
 
     if api_key or api_secret or org_id: pass
-    else: print("no .env found, api_key {not bool(api_key)}, api_secret {not bool(api_secret)}, org_id {not bool(org_id)}")
+    else: print(f"no .env found, api_key {not bool(api_key)}, api_secret {not bool(api_secret)}, org_id {not bool(org_id)}")
 
     client = LLMAI_Inter(api_key, api_secret, org_id, "")
     print("\ngetting auth status ...") 
