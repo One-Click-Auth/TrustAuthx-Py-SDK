@@ -4,9 +4,12 @@ import subprocess
 import sys, os, time
 from dotenv import load_dotenv
 
+this_directory = os.path.abspath(os.path.dirname(__file__))
+myenv = os.path.join(this_directory, '.env')
+
 def main():
     parser = argparse.ArgumentParser(prog='trustauthx')
-    load_dotenv()
+    load_dotenv(myenv)
     api_key = os.environ.get('API_KEY')
     api_secret = os.environ.get('API_SECRET')
     org_id = os.environ.get('ORG_ID')
@@ -21,19 +24,29 @@ def main():
     args = parser.parse_args()
     # try:
     if args.k and args.s and args.o:
+        if api_key or api_secret or org_id:
+            file_path = myenv
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            else:
+                print(f"Error: {file_path} not a valid filename")
+            time.sleep(0.5)
+            print("\nattempt to Logout TrustAuthx Build AI successful")
+            time.sleep(1)
+            print("\nEverything Done Status 200, Successfully logged out")
+        else:
             env_vars = {
                 "API_KEY": args.k,
                 "API_SECRET": args.s,
                 "ORG_ID": args.o
-            }
+                }
             with open('.env', 'w') as f:
                 for key, value in env_vars.items():
                     f.write(f'{key}={value}\n')
-            load_dotenv()
+            load_dotenv(myenv)
             api_key = os.environ.get('API_KEY')
             api_secret = os.environ.get('API_SECRET')
             org_id = os.environ.get('ORG_ID')
-    
 
     client = LLMAI_Inter(api_key, api_secret, org_id, "")
     print("\ngetting auth status ...") 
@@ -75,6 +88,17 @@ def main():
         print("\nExecuting Rate-Limit")
         time.sleep(1)
         print("\nEverything Done Status 200, Ready To Start")
+
+    if args.command == 'logout':
+        file_path = myenv
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        else:
+            print(f"Error: {file_path} not a valid filename")
+        time.sleep(0.5)
+        print("\nattempt to Logout TrustAuthx Build AI successful")
+        time.sleep(1)
+        print("\nEverything Done Status 200, Successfully logged out")
 
 if __name__ == '__main__':
     main()
