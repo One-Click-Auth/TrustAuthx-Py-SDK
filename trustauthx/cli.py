@@ -5,7 +5,7 @@ import sys, os, time
 from dotenv import load_dotenv
 
 this_directory = os.path.abspath(os.path.dirname(__file__))
-myenv = os.path.join(this_directory, '.env')
+myenv = './.env'
 
 def main():
     parser = argparse.ArgumentParser(prog='trustauthx')
