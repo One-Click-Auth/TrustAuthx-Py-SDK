@@ -1,4 +1,4 @@
-It is the official Python SDK for TrustAuthx. 
+It is the official Python SDK for TrustAuthx . 
 
 # TrustAuthX Python Connector SDK 🐍
 
