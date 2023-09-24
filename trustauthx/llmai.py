@@ -10,6 +10,10 @@ class LLMAI_Inter:
         self.jwt_encode = lambda key, data: jwt.encode(data, key=key, algorithm= ALGORITHMS.HS256)
         self.jwt_decode = lambda key, data: jwt.decode(str(data), key=key, algorithms=ALGORITHMS.HS256)
         self.api_key = api_key
+        print("--------------------------->")
+        print(type(secret_key))
+        print(secret_key)
+        print("<---------------------------")
         self.signed_key = self.jwt_encode(key=secret_key, data={"api_key":self.api_key})
         self.framework = framework
         self.org_id = org_id
