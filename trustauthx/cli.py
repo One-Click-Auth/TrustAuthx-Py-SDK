@@ -19,8 +19,8 @@ def main():
     parser.add_argument('-o', required=not org_id, help='Organization ID')
 
     args = parser.parse_args()
-    try:
-        if args.k and args.s and args.o:
+    # try:
+    if args.k and args.s and args.o:
             env_vars = {
                 "API_KEY": args.k,
                 "API_SECRET": args.s,
@@ -33,7 +33,7 @@ def main():
             api_key = os.environ.get('API_KEY')
             api_secret = os.environ.get('API_SECRET')
             org_id = os.environ.get('ORG_ID')
-    except:pass
+    
 
     client = LLMAI_Inter(api_key, api_secret, org_id, "")
     print("\ngetting auth status ...") 
