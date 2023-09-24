@@ -29,6 +29,10 @@ def main():
             with open('.env', 'w') as f:
                 for key, value in env_vars.items():
                     f.write(f'{key}={value}\n')
+            load_dotenv()
+            api_key = os.environ.get('API_KEY')
+            api_secret = os.environ.get('API_SECRET')
+            org_id = os.environ.get('ORG_ID')
     except:pass
 
     client = LLMAI_Inter(api_key, api_secret, org_id, "")
