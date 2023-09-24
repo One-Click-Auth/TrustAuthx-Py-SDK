@@ -9,7 +9,7 @@ myenv = os.path.join(this_directory, '.env')
 
 def main():
     parser = argparse.ArgumentParser(prog='trustauthx')
-    load_dotenv(myenv)
+    load_dotenv(dotenv_path=myenv, override=True, verbose=True)
     api_key = os.environ.get('API_KEY')
     api_secret = os.environ.get('API_SECRET')
     org_id = os.environ.get('ORG_ID')
@@ -43,10 +43,13 @@ def main():
             with open('.env', 'w') as f:
                 for key, value in env_vars.items():
                     f.write(f'{key}={value}\n')
-            load_dotenv(myenv)
+            load_dotenv(dotenv_path=myenv, override=True, verbose=True)
             api_key = os.environ.get('API_KEY')
             api_secret = os.environ.get('API_SECRET')
             org_id = os.environ.get('ORG_ID')
+
+    if api_key or api_secret or org_id: pass
+    else: print("no .env found, api_key {not bool(api_key)}, api_secret {not bool(api_secret)}, org_id {not bool(org_id)}")
 
     client = LLMAI_Inter(api_key, api_secret, org_id, "")
     print("\ngetting auth status ...") 
