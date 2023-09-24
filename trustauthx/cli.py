@@ -4,12 +4,9 @@ import subprocess
 import sys, os, time
 from dotenv import load_dotenv
 
-this_directory = os.path.abspath(os.path.dirname(__file__))
-myenv = './.env'
-
 def main():
     parser = argparse.ArgumentParser(prog='trustauthx')
-    load_dotenv(dotenv_path=myenv, override=True, verbose=True)
+    load_dotenv(dotenv_path='./.env', override=True, verbose=True)
     api_key = os.environ.get('API_KEY')
     api_secret = os.environ.get('API_SECRET')
     org_id = os.environ.get('ORG_ID')
@@ -25,7 +22,7 @@ def main():
     # try:
     if args.k and args.s and args.o:
         if api_key or api_secret or org_id:
-            file_path = myenv
+            file_path = './.env'
             if os.path.isfile(file_path):
                 os.remove(file_path)
             else:
@@ -43,7 +40,7 @@ def main():
             with open('.env', 'w') as f:
                 for key, value in env_vars.items():
                     f.write(f'{key}={value}\n')
-            load_dotenv(dotenv_path=myenv, override=True, verbose=True)
+            load_dotenv(dotenv_path='./.env', override=True, verbose=True)
             api_key = os.environ.get('API_KEY')
             api_secret = os.environ.get('API_SECRET')
             org_id = os.environ.get('ORG_ID')
@@ -93,7 +90,7 @@ def main():
         print("\nEverything Done Status 200, Ready To Start")
 
     if args.command == 'logout':
-        file_path = myenv
+        file_path = './.env'
         if os.path.isfile(file_path):
             os.remove(file_path)
         else:
