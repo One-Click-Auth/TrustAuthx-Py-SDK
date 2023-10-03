@@ -26,7 +26,7 @@ setup(
     install_requires=[
         "certifi>=2023.5.7",
         "cffi>=1.15.1",
-        "cryptography==3.4.8",
+        "cryptography==41.0.4",
         "ecdsa>=0.18.0",
         "idna>=3.4",
         "pyasn1>=0.5.0",
