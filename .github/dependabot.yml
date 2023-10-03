@@ -7,7 +7,6 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     # Raise pull requests to update vendored dependencies that are checked in to the repository
-    vendor: true
     directory: "/"
     schedule:
       interval: "weekly"
