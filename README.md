@@ -1,5 +1,10 @@
 It is the official Python SDK for TrustAuthx. 
 
+<br>
+<br>
+[![license badge](https://img.shields.io/github/license/redhat-actions/crda)](./LICENSE)
+
+
 # TrustAuthX Python Connector SDK 🐍
 
 TrustAuthX is a revolutionary AI-powered authentication platform that provides secure and seamless login experiences for your users. TrustAuthX uses a unique neuroform technology that analyzes the biometric and behavioral patterns of your users and verifies their identity in real time.
