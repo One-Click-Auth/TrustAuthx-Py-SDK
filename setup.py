@@ -8,7 +8,7 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='trustauthx',
-    version='0.4.432',
+    version='0.4.44',
     description='Official connector SDK for TrustAuthx',
     long_description=long_description,
     long_description_content_type='text/markdown',  # This is important!
@@ -34,7 +34,7 @@ setup(
         "requests>=2.31.0",
         "rsa>=4.9",
         "six>=1.16.0",
-        "urllib3>=2.0.3",
+        "urllib3<=3.0.0",
         "charset-normalizer>=3.2.0",
         "python-jose>=3.3.0",
         "python-dotenv==1.0.0"
