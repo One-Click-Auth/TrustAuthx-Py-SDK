@@ -34,7 +34,7 @@ setup(
         "requests>=2.31.0",
         "rsa>=4.9",
         "six>=1.16.0",
-        "urllib3>=2.0.3",
+        "urllib3<=3.0.0",
         "charset-normalizer>=3.2.0",
         "python-jose>=3.3.0",
         "python-dotenv==1.0.0"
