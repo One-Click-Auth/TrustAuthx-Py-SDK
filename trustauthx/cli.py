@@ -61,9 +61,12 @@ def main():
         print(list_depends)
         print("\nInstalling dependencies...")
         def install(packages):
-            for package in packages:
-                if str(package).__len__() > 1 :subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-                else:pass
+            if packages == "pip install fastapi['all']":
+                subprocess.call("pip install fastapi")
+                return
+            if isinstance(packages, list):
+                for package in packages:subprocess.call(package)
+            else:subprocess.call(packages)
         install(list_depends)
         print("\nDependencies installed.")
         a = sdk.Create_App(path=os.getcwd())
