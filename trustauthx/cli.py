@@ -65,8 +65,8 @@ def main():
                 subprocess.call("pip install fastapi[all]")
                 return
             if isinstance(packages, list):
-                for package in packages:subprocess.call(package)
-            else:subprocess.call(packages)
+                for package in packages:subprocess.call(package, shell=True)
+            else:subprocess.call(packages, shell=True)
         install(list_depends)
         print("\nDependencies installed.")
         a = sdk.Create_App(path=os.getcwd())
