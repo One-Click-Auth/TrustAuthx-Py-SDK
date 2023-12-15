@@ -3,6 +3,10 @@ from .llmai import LLMAI_Inter
 import subprocess
 import sys, os, time
 from dotenv import load_dotenv
+import platform
+
+def is_mac():
+    return platform.system() == 'Darwin'
 
 def main():
     parser = argparse.ArgumentParser(prog='trustauthx')
@@ -37,9 +41,14 @@ def main():
                 "API_SECRET": args.s,
                 "ORG_ID": args.o
                 }
-            with open('.env', 'w') as f:
-                for key, value in env_vars.items():
-                    f.write(f'{key}={value}\n')
+            if is_mac():
+                with open('.env', 'w') as f:
+                    for key, value in env_vars.items():
+                        f.write(f'export {key}={value}\n')
+            else:
+                with open('.env', 'w') as f:
+                    for key, value in env_vars.items():
+                        f.write(f'{key}={value}\n')
             load_dotenv(dotenv_path='./.env', override=True, verbose=True)
             api_key = os.environ.get('API_KEY')
             api_secret = os.environ.get('API_SECRET')

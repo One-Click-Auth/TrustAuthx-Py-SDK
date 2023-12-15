@@ -49,7 +49,7 @@ class AuthLiteClient:
             Validates a set of access and refresh tokens.
 
     """
-    
+
     class TokenCheck:
         """
         TokenCheck is a nested class for representing the state of access and refresh tokens.
@@ -62,7 +62,7 @@ class AuthLiteClient:
         access :str
         refresh:str
         state:bool
-    
+
     def __init__(self, api_key, secret_key, org_id=None):
         """
         Initializes an AuthLiteClient instance.
@@ -187,7 +187,7 @@ class AuthLiteClient:
                                                                             response.status_code, 
                                                                             response.text)
                             )
-    
+
     def get_user_data(self, AccessToken) -> dict:
         """
         Retrieves user data using an access token.
@@ -269,7 +269,7 @@ class AuthLiteClient:
                  }
         response = requests.get(url, headers=headers, params=params)
         return response.status_code == 200
-    
+
     def revoke_token(self,AccessToken:str=None, RefreshToken:str = None, revoke_all_tokens:bool = False) -> bool:
         """
         Revokes an access token or refresh token.
@@ -302,7 +302,7 @@ class AuthLiteClient:
         if response.status_code == 200:return response.json()
         else:raise HTTPError(
             'Request failed with status code : {} \n this code contains a msg : {}'.format(response.status_code, response.text))
-    
+
     def validate_token_set(self, access_token, refresh_token) -> TokenCheck:
         """
         Validates a set of access and refresh tokens.
