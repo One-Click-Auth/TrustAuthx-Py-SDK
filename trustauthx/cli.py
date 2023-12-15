@@ -70,8 +70,8 @@ def main():
         print(list_depends)
         print("\nInstalling dependencies...")
         def install(packages):
-            if packages == "pip install fastapi['all']":
-                subprocess.call("pip install fastapi[all]")
+            if packages == "pip install fastapi[all]":
+                subprocess.call("pip install fastapi[all]", shell=True)
                 return
             if isinstance(packages, list):
                 for package in packages:subprocess.call(package, shell=True)
