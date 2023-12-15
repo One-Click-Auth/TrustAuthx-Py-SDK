@@ -1,27 +1,27 @@
-from setuptools import setup, find_packages
 import os
 
+from setuptools import find_packages, setup
+
 this_directory = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
-
 setup(
-    name='trustauthx',
-    version='0.5.5',
-    description='Official connector SDK for TrustAuthx',
+    name="trustauthx",
+    version="0.5.5",
+    description="Official connector SDK for TrustAuthx",
     long_description=long_description,
-    long_description_content_type='text/markdown',  # This is important!
-    author='moonlightnexus',
-    author_email='nexus@trustauthx.com',
+    long_description_content_type="text/markdown",  # This is important!
+    author="moonlightnexus",
+    author_email="nexus@trustauthx.com",
     url="https://github.com/One-Click-Auth/TrustAuthx-Py-SDK.git",
     license="MIT",
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3.9',
-                ],
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.9",
+    ],
     packages=find_packages(),
     install_requires=[
         "certifi>=2023.5.7",
@@ -37,11 +37,11 @@ setup(
         "urllib3<=3.0.0",
         "charset-normalizer>=3.2.0",
         "python-jose>=3.3.0",
-        "python-dotenv==1.0.0"
-                     ],
+        "python-dotenv==1.0.0",
+    ],
     entry_points={
-        'console_scripts': [
-            'trustauthx = trustauthx.cli:main',
+        "console_scripts": [
+            "trustauthx = trustauthx.cli:main",
         ],
     },
 )
