@@ -42,9 +42,12 @@ def main():
                 "ORG_ID": args.o
                 }
             if is_mac():
-                with open('.env', 'w') as f:
-                    for key, value in env_vars.items():
-                        f.write(f'export {key}={value}\n')
+                try:
+                    with open('.env', 'w') as f:
+                        for key, value in env_vars.items():
+                            f.write(f'export {key}={value}\n')
+                except: raise EnvironmentError()
+                else: subprocess.call("source .env", shell=True)
             else:
                 with open('.env', 'w') as f:
                     for key, value in env_vars.items():
