@@ -37,7 +37,7 @@ setup(
         "urllib3<=3.0.0",
         "charset-normalizer>=3.2.0",
         "python-jose>=3.3.0",
-        "python-dotenv==1.0.0"
+        "python-dotenv==1.0.1"
                      ],
     entry_points={
         'console_scripts': [
