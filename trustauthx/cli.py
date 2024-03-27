@@ -47,7 +47,7 @@ def main():
                 except:
                     raise EnvironmentError()
                 else:
-                    subprocess.run(["source", ".env"])
+                    subprocess.run(["source", ".env"], check=True)
             else:
                 with open(".env", "w") as f:
                     for key, value in env_vars.items():
@@ -81,13 +81,13 @@ def main():
         def install(packages):
             if packages == "pip install fastapi[all]":
                 packages = packages.split(" ") # passing as list of commands
-                subprocess.run(packages)
+                subprocess.run(packages, check=True)
                 return
             if isinstance(packages, list):
                 for package in packages:
-                    subprocess.run(package.split(" "))
+                    subprocess.run(package.split(" "), check=True)
             else:
-                subprocess.run(packages.split(" "))
+                subprocess.run(packages.split(" "), check=True)
 
         install(list_depends)
         print("\nDependencies installed.")
@@ -109,7 +109,9 @@ def main():
         )
         b = sdk.Start_server()
         b = b.split(" ") # split commands into a list
-        subprocess.run(b)
+        if b[0] == "python":
+            b[0] = sys.executable # to support execution of script in windows
+        subprocess.run(b, check=True)
 
     if args.command == "login":
         time.sleep(0.5)
