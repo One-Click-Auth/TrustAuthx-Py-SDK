@@ -4,23 +4,39 @@ from jose import JWTError, jwt
 from jose.constants import ALGORITHMS
 import json
 import sqlite3
-from dataclasses import dataclass, asdict
-from typing import List, Dict
-
-@dataclass
-class Permission:
-    name: str
-    value: str
-
-@dataclass
-class Role:
-    org_id: str
-    rol_id: str
-    name: str
-    permissions: List[Permission]
+from .scheme import *
 
 class _EdgeDBRoleQuery:
+    """
+    A class for querying and managing roles and permissions.
+
+    Attributes:
+        in_memory (bool): Flag indicating whether to store the roles in-memory or in a SQLite database.
+        roles (Dict[str, Dict[str, str]]): A dictionary mapping role IDs to permissions (in-memory mode).
+        conn (sqlite3.Connection): The SQLite database connection (database mode).
+        cursor (sqlite3.Cursor): The SQLite database cursor (database mode).
+
+    Methods:
+        __init__(self, roles, in_memory=True):
+            Initializes the _EdgeDBRoleQuery instance with the provided roles and storage mode.
+
+        query(self, role_id=None, permission_key=None):
+            Queries the roles and permissions based on the provided role ID and/or permission key.
+
+        validate(self, role_id, permission_key, permission_val):
+            Validates a permission value for a given role ID and permission key.
+
+        count_roles(self):
+            Returns the number of roles stored.
+    """
     def __init__(self, roles, in_memory=True):
+        """
+        Initializes the _EdgeDBRoleQuery instance.
+
+        Args:
+            roles (List[Dict[str, Dict[str, str]]]): A list of dictionaries representing roles and their permissions.
+            in_memory (bool, optional): Flag indicating whether to store the roles in-memory or in a SQLite database. Defaults to True.
+        """
         self.in_memory = in_memory
         if self.in_memory:
             self.roles = {role_id: permissions for role in roles for role_id, permissions in role.items()}
@@ -39,6 +55,16 @@ class _EdgeDBRoleQuery:
             self.conn.commit()
 
     def query(self, role_id=None, permission_key=None):
+        """
+        Queries the roles and permissions based on the provided role ID and/or permission key.
+
+        Args:
+            role_id (str, optional): The role ID to query.
+            permission_key (str, optional): The permission key to query.
+
+        Returns:
+            Union[Dict[str, Dict[str, str]], Dict[str, str], str, None]: The queried roles, permissions, or permission value, depending on the provided arguments.
+        """
         if self.in_memory:
             if role_id and permission_key:
                 return self.roles.get(role_id, {}).get(permission_key, None)
@@ -65,6 +91,17 @@ class _EdgeDBRoleQuery:
                 return self.cursor.fetchall()
 
     def validate(self, role_id, permission_key, permission_val):
+        """
+        Validates a permission value for a given role ID and permission key.
+
+        Args:
+            role_id (str): The role ID to validate.
+            permission_key (str): The permission key to validate.
+            permission_val (str): The expected permission value to validate.
+
+        Returns:
+            bool: True if the permission value matches the expected value, False otherwise.
+        """
         if self.in_memory:
             return self.roles.get(role_id, {}).get(permission_key, None) == permission_val
         else:
@@ -74,6 +111,12 @@ class _EdgeDBRoleQuery:
                 return permissions[0].get(permission_key, None) == permission_val
 
     def count_roles(self):
+        """
+        Returns the number of roles stored.
+
+        Returns:
+            int: The number of roles stored.
+        """
         if self.in_memory:
             return len(self.roles)
         else:
@@ -81,7 +124,46 @@ class _EdgeDBRoleQuery:
             return self.cursor.fetchone()[0]
 
 class _Roles(_EdgeDBRoleQuery):
+    """
+    A class for managing roles and permissions in the EdgeDB system.
+
+    Attributes:
+        org_id (str): The organization ID associated with the roles.
+        api_key (str): The API key for authentication.
+        _secret_key (str): The secret key for JWT encoding/decoding.
+        signed_key (str): The signed key for authentication.
+        API_BASE_URL (str): The base URL for the API.
+        roles (Dict[str, Dict[str, str]]): A dictionary mapping role IDs to permissions.
+
+    Methods:
+        get_all_roles(self):
+            Retrieves all roles and their permissions from the API.
+
+        add_role(self, name, **Permission_):
+            Adds a new role with the specified name and permissions.
+
+        delete_role(self, rol_id):
+            Deletes a role with the specified role ID.
+
+        add_permission(self, rol_id, **Permission_):
+            Adds a new permission to a role with the specified role ID.
+
+        delete_permission(self, rol_id, **Permission_):
+            Deletes a permission from a role with the specified role ID.
+    """
     def __init__(self, roles, org_id, api_key, signed_key, secret_key, API_BASE_URL, InMemory=True):
+        """
+        Initializes the _Roles instance.
+
+        Args:
+            roles (List[Dict[str, Dict[str, str]]]): A list of dictionaries representing roles and their permissions.
+            org_id (str): The organization ID associated with the roles.
+            api_key (str): The API key for authentication.
+            signed_key (str): The signed key for authentication.
+            secret_key (str): The secret key for JWT encoding/decoding.
+            API_BASE_URL (str): The base URL for the API.
+            InMemory (bool, optional): Flag indicating whether to store the roles in-memory or in a SQLite database. Defaults to True.
+        """
         self.org_id = org_id
         self.api_key = api_key
         self._secret_key = secret_key
@@ -90,8 +172,15 @@ class _Roles(_EdgeDBRoleQuery):
         super().__init__(roles, in_memory=InMemory)
         print(self.roles)
 
-    def get_all_roles(self):
-        """[
+    def get_all_roles(self) -> GetAllRolesResponse:
+        """
+        Retrieves all roles and their permissions from the API.
+
+        Returns:
+            List[Role]: A list of Role objects representing the roles and their permissions.
+        
+
+        demo response ==> [
   {
     "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
     "rol_id": "rol_gCD_ebc6f7715bb14554",
@@ -134,10 +223,20 @@ class _Roles(_EdgeDBRoleQuery):
         }
         response = requests.get(url, headers=headers, params=params)
         roles = [Role(**role_data) for role_data in response.json()]
-        return roles
+        return GetAllRolesResponse(roles=[role.to_dict() for role in roles])
 
-    def add_role(self, name, **Permission):
-        """{
+    def add_role(self, name, **Permission_) ->AddRoleResponse:
+        """
+        Adds a new role with the specified name and permissions.
+
+        Args:
+            name (str): The name of the new role.
+            **Permission_: Keyword arguments representing the permissions to be added to the new role.
+
+        Returns:
+            AddRoleResponse: An AddRoleResponse object representing the newly created role.
+            
+        demo response ==> {
   "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
   "rol_id": "rol_rce_474ae9e59b3d49ce",
   "name": "string",
@@ -163,18 +262,34 @@ class _Roles(_EdgeDBRoleQuery):
             'api_key': f'{self.api_key}',
             'signed_key': f'{self._secret_key}'
         }
-        permissions = [{k: v} for k, v in Permission.items()]
+        permissions = [{k: v} for k, v in Permission_.items()]
         data = {
             "org_id": f'{self.org_id}',
             "name": name,
             "permissions": permissions
         }
         response = requests.post(url, headers=headers, params=params, data=json.dumps(data))
-        return response.json()
+        role_data = response.json()
+        permissions = [Permission(**p) for p in role_data.get("permissions", [])]
+        return AddRoleResponse(
+            org_id=role_data.get("org_id"),
+            rol_id=role_data.get("rol_id"),
+            name=role_data.get("name"),
+            permissions=permissions
+        )
 
-    def delete_role(self, rol_id):
+    def delete_role(self, rol_id) -> DeleteRoleResponse:
 
-        """{
+        """
+        Deletes a role with the specified role ID.
+
+        Args:
+            rol_id (str): The ID of the role to be deleted.
+
+        Returns:
+            DeleteRoleResponse: A DeleteRoleResponse object representing the deleted role.
+        
+        demo response ==> {
   "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
   "rol_id": "rol_YHV_78ae9006bcaa4c77",
   "name": "string",
@@ -205,10 +320,27 @@ class _Roles(_EdgeDBRoleQuery):
             "rol_id": rol_id
         }
         response = requests.delete(url, headers=headers, params=params, data=json.dumps(data))
-        return response.json()
+        role_data = response.json()
+        permissions = [Permission(**p) for p in role_data.get("permissions", [])]
+        return DeleteRoleResponse(
+            org_id=role_data.get("org_id"),
+            rol_id=role_data.get("rol_id"),
+            name=role_data.get("name"),
+            permissions=permissions
+        )
 
-    def add_permission(self, rol_id, **Permission):
-        """{
+    def add_permission(self, rol_id, **Permission_) -> AddPermissionResponse:
+        """
+        Adds a new permission to a role with the specified role ID.
+
+        Args:
+            rol_id (str): The ID of the role to which the permission should be added.
+            **Permission_: Keyword arguments representing the permissions to be added.
+
+        Returns:
+            AddPermissionResponse: An AddPermissionResponse object representing the added permission.
+              
+        demo response ==> {
   "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
   "rol_id": "rol_rce_474ae9e59b3d49ce",
   "permissions": [
@@ -227,17 +359,33 @@ class _Roles(_EdgeDBRoleQuery):
             'api_key': f'{self.api_key}',
             'signed_key': f'{self._secret_key}'
         }
-        permissions = [{k: v} for k, v in Permission.items()]
+        permissions = [{k: v} for k, v in Permission_.items()]
         data = {
             "org_id": f'{self.org_id}',
             "rol_id": rol_id,
             "permissions": permissions
         }
         response = requests.post(url, headers=headers, params=params, data=json.dumps(data))
-        return response.json()
+        response_data = response.json()
+        permissions = [{k: v} for k, v in permissions.items()]
+        return AddPermissionResponse(
+            org_id=response_data.get("org_id"),
+            rol_id=response_data.get("rol_id"),
+            permissions=permissions
+        )
 
-    def delete_permission(self, rol_id, **Permission):
-        """{
+    def delete_permission(self, rol_id, **Permission_) -> DeletePermissionResponse:
+        """
+        Deletes a permission from a role with the specified role ID.
+
+        Args:
+            rol_id (str): The ID of the role from which the permission should be deleted.
+            **Permission_: Keyword arguments representing the permissions to be deleted.
+
+        Returns:
+            DeletePermissionResponse: A DeletePermissionResponse object representing the role with the deleted permission.
+        
+        demo response ==> {
   "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
   "rol_id": "rol_rce_474ae9e59b3d49ce",
   "permissions": [
@@ -262,7 +410,7 @@ class _Roles(_EdgeDBRoleQuery):
             'api_key': f'{self.api_key}',
             'signed_key': f'{self._secret_key}'
         }
-        permissions = [{k: v} for k, v in Permission.items()]
+        permissions = [{k: v} for k, v in Permission_.items()]
         data = {
             "org_id": f'{self.org_id}',
             "rol_id": rol_id,
@@ -281,6 +429,10 @@ class AuthLiteClient():
         secret_key (str): The secret key used for JWT encoding.
         org_id (str): The organization ID for generating authentication URLs.
         signed_key (str): The signed key used for generating URLs.
+        jwt_encode (Callable): A function for encoding JSON Web Tokens (JWTs).
+        jwt_decode (Callable): A function for decoding JSON Web Tokens (JWTs).
+        API_BASE_URL (str): The base URL for the API.
+        Roles (_Roles): An instance of the _Roles class for managing roles and permissions.
 
     Methods:
         __init__(self, api_key, secret_key, org_id=None):
@@ -330,16 +482,16 @@ class AuthLiteClient():
 
     def __init__(self, api_key, secret_key, org_id=None, API_BASE_URL="https://api.trustauthx.com", in_memory=True):
         """
-        Initializes an AuthLiteClient instance.
+       Initializes the AuthLiteClient instance.
 
-        Args:
-            api_key (str): The API key used for authentication.
-            secret_key (str): The secret key used for JWT encoding.
-            org_id (str, optional): The organization ID for generating authentication URLs.
-
-        Returns:
-            None
-        """
+       Args:
+           api_key (str): The API key used for authentication.
+           secret_key (str): The secret key used for JWT encoding.
+           org_id (str, optional): The organization ID for generating authentication URLs.
+           API_BASE_URL (str, optional): The base URL for the API. Defaults to "https://api.trustauthx.com".
+           in_memory (bool, optional): Flag indicating whether to store the roles in-memory or in a SQLite database. Defaults to True (ie. in-memory).
+       
+       """
         self.jwt_encode = lambda key, data: jwt.encode(data, key=key, algorithm= ALGORITHMS.HS256)
         self.jwt_decode = lambda key, data: jwt.decode(str(data), key=key, algorithms=ALGORITHMS.HS256)
         self.secret_key = secret_key
@@ -607,5 +759,3 @@ class AuthLiteClient():
         
     def _set_edge_roles(self) -> list:
         return []
-
-
