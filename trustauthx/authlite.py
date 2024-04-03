@@ -832,3 +832,11 @@ class AuthLiteClient():
     def attach_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
         # add this and test
         pass
+
+    def remove_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
+        # add this and test
+        pass
+
+    def update_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
+        # add this and test
+        pass
