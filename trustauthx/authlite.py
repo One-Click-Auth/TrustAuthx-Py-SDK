@@ -828,3 +828,7 @@ class AuthLiteClient():
                                     secret_key=self._secret_key, API_BASE_URL=self.API_BASE_URL,
                                     InMemory=self.in_memory)
         return self.Roles
+    
+    def attach_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
+        # add this and test
+        pass
