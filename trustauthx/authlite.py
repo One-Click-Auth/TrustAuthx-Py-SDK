@@ -5,6 +5,8 @@ from jose.constants import ALGORITHMS
 import json
 import sqlite3
 from .scheme import *
+from functools import wraps
+import threading
 
 class _EdgeDBRoleQuery:
     """
@@ -29,6 +31,9 @@ class _EdgeDBRoleQuery:
         count_roles(self):
             Returns the number of roles stored.
     """
+    total_roles = 0
+    roles = None
+
     def __init__(self, roles, in_memory=True):
         """
         Initializes the _EdgeDBRoleQuery instance.
@@ -39,7 +44,7 @@ class _EdgeDBRoleQuery:
         """
         self.in_memory = in_memory
         if self.in_memory:
-            self.roles = {role_id: permissions for role in roles for role_id, permissions in role.items()}
+            self.__class__.roles = {role_id: permissions for role in roles for role_id, permissions in role.items()}
         else:
             self.conn = sqlite3.connect(':memory:')  # replace ':memory:' with your database path
             self.cursor = self.conn.cursor()
@@ -53,6 +58,7 @@ class _EdgeDBRoleQuery:
                 for role_id, permissions in role.items():
                     self.cursor.execute("INSERT INTO roles VALUES (?, ?)", (role_id, permissions))
             self.conn.commit()
+        self.count_roles()
 
     def query(self, role_id=None, permission_key=None):
         """
@@ -67,13 +73,13 @@ class _EdgeDBRoleQuery:
         """
         if self.in_memory:
             if role_id and permission_key:
-                return self.roles.get(role_id, {}).get(permission_key, None)
+                return self.__class__.roles.get(role_id, {}).get(permission_key, None)
             elif role_id:
-                return self.roles.get(role_id, None)
+                return self.__class__.roles.get(role_id, None)
             elif permission_key:
-                return {role_id: permissions[permission_key] for role_id, permissions in self.roles.items() if permission_key in permissions}
+                return {role_id: permissions[permission_key] for role_id, permissions in self.__class__.roles.items() if permission_key in permissions}
             else:
-                return self.roles
+                return self.__class__.roles
         else:
             if role_id and permission_key:
                 self.cursor.execute("SELECT permissions FROM roles WHERE role_id = ?", (role_id,))
@@ -103,7 +109,7 @@ class _EdgeDBRoleQuery:
             bool: True if the permission value matches the expected value, False otherwise.
         """
         if self.in_memory:
-            return self.roles.get(role_id, {}).get(permission_key, None) == permission_val
+            return self.__class__.roles.get(role_id, {}).get(permission_key, None) == permission_val
         else:
             self.cursor.execute("SELECT permissions FROM roles WHERE role_id = ?", (role_id,))
             permissions = self.cursor.fetchone()
@@ -118,10 +124,45 @@ class _EdgeDBRoleQuery:
             int: The number of roles stored.
         """
         if self.in_memory:
-            return len(self.roles)
+            r = len(self.__class__.roles)
+            _EdgeDBRoleQuery.total_roles = r
+            return 
         else:
             self.cursor.execute("SELECT COUNT(*) FROM roles")
-            return self.cursor.fetchone()[0]
+            r = self.cursor.fetchone()[0]
+            _EdgeDBRoleQuery.total_roles = r
+            return 
+
+    @classmethod
+    def reinitialize_all(foreground=True):
+        if foreground:
+            for instance in AuthLiteClient.instances:
+                instance:AuthLiteClient = instance
+                instance._re_init_roles()
+        else:
+            def target():
+                for instance in AuthLiteClient.instances:
+                    instance:AuthLiteClient = instance
+                    instance._re_init_roles()
+            thread = threading.Thread(target=target)
+            thread.start()
+
+    @staticmethod
+    def _EDGE_Wrapper(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Call the function
+            response = func(*args, **kwargs)
+            # Check for "X-EDGE"
+            x_edge = response.headers.get("X-EDGE")
+            if int(x_edge) != _EdgeDBRoleQuery.total_roles:
+                _EdgeDBRoleQuery.reinitialize_all() # Add data
+            return response
+        return wrapper
+
+requests.get = _EdgeDBRoleQuery._EDGE_Wrapper(requests.get)
+requests.post = _EdgeDBRoleQuery._EDGE_Wrapper(requests.post)
+requests.delete = _EdgeDBRoleQuery._EDGE_Wrapper(requests.delete)
 
 class _Roles(_EdgeDBRoleQuery):
     """
@@ -151,6 +192,8 @@ class _Roles(_EdgeDBRoleQuery):
         delete_permission(self, rol_id, **Permission_):
             Deletes a permission from a role with the specified role ID.
     """
+    instances = []
+
     def __init__(self, roles, org_id, api_key, signed_key, secret_key, API_BASE_URL, InMemory=True):
         """
         Initializes the _Roles instance.
@@ -165,67 +208,68 @@ class _Roles(_EdgeDBRoleQuery):
             InMemory (bool, optional): Flag indicating whether to store the roles in-memory or in a SQLite database. Defaults to True.
         """
         self.org_id = org_id
-        self.api_key = api_key
+        self._api_key = api_key
         self._secret_key = secret_key
-        self.signed_key = signed_key
+        self._signed_key = signed_key
         self.API_BASE_URL = API_BASE_URL
+        self.__class__.instances.append(self)
         super().__init__(roles, in_memory=InMemory)
-        print(self.roles)
+        print(self.__class__.roles)
 
     def get_all_roles(self) -> GetAllRolesResponse:
         """
         Retrieves all roles and their permissions from the API.
 
         Returns:
-            List[Role]: A list of Role objects representing the roles and their permissions.
+            roles_list = List[Role]: A list of Role objects representing the roles and their permissions.roles
+            roles_json_list = List[dict]: A list of dict representing the roles and their permissions
         
-
         demo response ==> [
-  {
-    "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
-    "rol_id": "rol_gCD_ebc6f7715bb14554",
-    "name": "string",
-    "permissions": [
-      {
-        "user": "administration"
-      }
-    ]
-  },
-  {
-    "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
-    "rol_id": "rol_Ahy_f51d73ff656545e5",
-    "name": "string",
-    "permissions": []
-  },
-  {
-    "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
-    "rol_id": "rol_rce_474ae9e59b3d49ce",
-    "name": "string",
-    "permissions": [
-      {
-        "user": "administration"
-      },
-      {
-        "viewer": "administration"
-      },
-      {
-        "maintainer": "administration"
-      }
-    ]
-  }
-]"""
+          {
+            "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
+            "rol_id": "rol_gCD_ebc6f7715bb14554",
+            "name": "string",
+            "permissions": [
+              {
+                "user": "administration"
+              }
+            ]
+          },
+          {
+            "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
+            "rol_id": "rol_Ahy_f51d73ff656545e5",
+            "name": "string",
+            "permissions": []
+          },
+          {
+            "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
+            "rol_id": "rol_rce_474ae9e59b3d49ce",
+            "name": "string",
+            "permissions": [
+              {
+                "user": "administration"
+              },
+              {
+                "viewer": "administration"
+              },
+              {
+                "maintainer": "administration"
+              }
+            ]
+          }
+        ]"""
         url = f'{self.API_BASE_URL}/rbac/role'
         headers = {'accept': 'application/json'}
         params = {
             'org_id': f'{self.org_id}',
-            'api_key': f'{self.api_key}',
+            'api_key': f'{self._api_key}',
             'signed_key': f'{self._secret_key}'
         }
         response = requests.get(url, headers=headers, params=params)
         roles = [Role(**role_data) for role_data in response.json()]
-        return GetAllRolesResponse(roles=[role.to_dict() for role in roles])
+        return GetAllRolesResponse(roles_list=roles, roles_json_list=[role.to_dict() for role in roles])
 
-    def add_role(self, name, **Permission_) ->AddRoleResponse:
+    def add_role(self, name, **Permission_)->AddRoleResponse:
         """
         Adds a new role with the specified name and permissions.
 
@@ -237,21 +281,21 @@ class _Roles(_EdgeDBRoleQuery):
             AddRoleResponse: An AddRoleResponse object representing the newly created role.
             
         demo response ==> {
-  "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
-  "rol_id": "rol_rce_474ae9e59b3d49ce",
-  "name": "string",
-  "permissions": [
-    {
-      "user": "administration"
-    },
-    {
-      "viewer": "administration"
-    },
-    {
-      "maintainer": "administration"
-    }
-  ]
-}"""
+          "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
+          "rol_id": "rol_rce_474ae9e59b3d49ce",
+          "name": "string",
+          "permissions": [
+            {
+              "user": "administration"
+            },
+            {
+              "viewer": "administration"
+            },
+            {
+              "maintainer": "administration"
+            }
+          ]
+        }"""
         url = f'{self.API_BASE_URL}/rbac/role'
         headers = {
             'accept': 'application/json',
@@ -259,7 +303,7 @@ class _Roles(_EdgeDBRoleQuery):
         }
         params = {
             'org_id': f'{self.org_id}',
-            'api_key': f'{self.api_key}',
+            'api_key': f'{self._api_key}',
             'signed_key': f'{self._secret_key}'
         }
         permissions = [{k: v} for k, v in Permission_.items()]
@@ -290,21 +334,21 @@ class _Roles(_EdgeDBRoleQuery):
             DeleteRoleResponse: A DeleteRoleResponse object representing the deleted role.
         
         demo response ==> {
-  "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
-  "rol_id": "rol_YHV_78ae9006bcaa4c77",
-  "name": "string",
-  "permissions": [
-    {
-      "user": "administration"
-    },
-    {
-      "viewer": "administration"
-    },
-    {
-      "maintainer": "administration"
-    }
-  ]
-}"""
+          "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
+          "rol_id": "rol_YHV_78ae9006bcaa4c77",
+          "name": "string",
+          "permissions": [
+            {
+              "user": "administration"
+            },
+            {
+              "viewer": "administration"
+            },
+            {
+              "maintainer": "administration"
+            }
+          ]
+        }"""
         url = f'{self.API_BASE_URL}/rbac/role'
         headers = {
             'accept': 'application/json',
@@ -312,7 +356,7 @@ class _Roles(_EdgeDBRoleQuery):
         }
         params = {
             'org_id': f'{self.org_id}',
-            'api_key': f'{self.api_key}',
+            'api_key': f'{self._api_key}',
             'signed_key': f'{self._secret_key}'
         }
         data = {
@@ -329,7 +373,7 @@ class _Roles(_EdgeDBRoleQuery):
             permissions=permissions
         )
 
-    def add_permission(self, rol_id, **Permission_) -> AddPermissionResponse:
+    def add_permission(self, rol_id, foreground=False, **Permission_) -> AddPermissionResponse:
         """
         Adds a new permission to a role with the specified role ID.
 
@@ -341,14 +385,14 @@ class _Roles(_EdgeDBRoleQuery):
             AddPermissionResponse: An AddPermissionResponse object representing the added permission.
               
         demo response ==> {
-  "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
-  "rol_id": "rol_rce_474ae9e59b3d49ce",
-  "permissions": [
-    {
-      "any": "view" ##only return added content
-    }
-  ]
-}"""
+          "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
+          "rol_id": "rol_rce_474ae9e59b3d49ce",
+          "permissions": [
+            {
+              "any": "view" ##only return added content
+            }
+          ]
+        }"""
         url = f'{self.API_BASE_URL}/rbac/permission'
         headers = {
             'accept': 'application/json',
@@ -356,7 +400,7 @@ class _Roles(_EdgeDBRoleQuery):
         }
         params = {
             'org_id': f'{self.org_id}',
-            'api_key': f'{self.api_key}',
+            'api_key': f'{self._api_key}',
             'signed_key': f'{self._secret_key}'
         }
         permissions = [{k: v} for k, v in Permission_.items()]
@@ -368,13 +412,14 @@ class _Roles(_EdgeDBRoleQuery):
         response = requests.post(url, headers=headers, params=params, data=json.dumps(data))
         response_data = response.json()
         permissions = [{k: v} for k, v in permissions.items()]
+        self.reinitialize_all(foreground)
         return AddPermissionResponse(
             org_id=response_data.get("org_id"),
             rol_id=response_data.get("rol_id"),
             permissions=permissions
         )
 
-    def delete_permission(self, rol_id, **Permission_) -> DeletePermissionResponse:
+    def delete_permission(self, rol_id, foreground=False, **Permission_) -> DeletePermissionResponse:
         """
         Deletes a permission from a role with the specified role ID.
 
@@ -386,20 +431,20 @@ class _Roles(_EdgeDBRoleQuery):
             DeletePermissionResponse: A DeletePermissionResponse object representing the role with the deleted permission.
         
         demo response ==> {
-  "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
-  "rol_id": "rol_rce_474ae9e59b3d49ce",
-  "permissions": [
-    {
-      "user": "administration"
-    },
-    {
-      "viewer": "administration"
-    },
-    {
-      "maintainer": "administration"
-    }
-  ]
-}""" #return full
+          "org_id": "4195502c85984d27ae1aceb677d99551543808625aeb11ee88069dc8f7663e88",
+          "rol_id": "rol_rce_474ae9e59b3d49ce",
+          "permissions": [
+            {
+              "user": "administration"
+            },
+            {
+              "viewer": "administration"
+            },
+            {
+              "maintainer": "administration"
+            }
+          ]
+        }""" #return full
         url = f'{self.API_BASE_URL}/rbac/permission'
         headers = {
             'accept': 'application/json',
@@ -407,7 +452,7 @@ class _Roles(_EdgeDBRoleQuery):
         }
         params = {
             'org_id': f'{self.org_id}',
-            'api_key': f'{self.api_key}',
+            'api_key': f'{self._api_key}',
             'signed_key': f'{self._secret_key}'
         }
         permissions = [{k: v} for k, v in Permission_.items()]
@@ -417,9 +462,11 @@ class _Roles(_EdgeDBRoleQuery):
             "permissions": permissions
         }
         response = requests.delete(url, headers=headers, params=params, data=json.dumps(data))
+        self.reinitialize_all(foreground)
         return response.json()
     
 class AuthLiteClient():
+    instances = []
 
     """
     AuthLiteClient is a Python client for the TrustAuthX authentication service.
@@ -494,16 +541,18 @@ class AuthLiteClient():
        """
         self.jwt_encode = lambda key, data: jwt.encode(data, key=key, algorithm= ALGORITHMS.HS256)
         self.jwt_decode = lambda key, data: jwt.decode(str(data), key=key, algorithms=ALGORITHMS.HS256)
-        self.secret_key = secret_key
-        self.api_key = api_key
+        self._secret_key = secret_key
+        self._api_key = api_key
         self.org_id = org_id
-        self.signed_key = self.jwt_encode(key=self.secret_key, data={"api_key":self.api_key})
+        self._signed_key = self.jwt_encode(key=self._secret_key, data={"api_key":self._api_key})
         self.API_BASE_URL = API_BASE_URL
+        self.in_memory = in_memory
         self.Roles: _Roles = _Roles(roles=self._set_edge_roles(), org_id=self.org_id, 
-                                    api_key=self.api_key, signed_key=self.signed_key, 
-                                    secret_key=self.secret_key, API_BASE_URL=self.API_BASE_URL,
+                                    api_key=self._api_key, signed_key=self._signed_key, 
+                                    secret_key=self._secret_key, API_BASE_URL=self.API_BASE_URL,
                                     InMemory=in_memory)
-
+        self.__class__.instances.append(self)
+        
     def generate_url(self) -> str:
         """
         Generates an authentication URL for the given organization.
@@ -533,8 +582,8 @@ class AuthLiteClient():
         headers = {'accept': 'application/json'}
         params = {
             'AccessToken': access_token,
-            'api_key': self.api_key,
-            'signed_key': self.signed_key,
+            'api_key': self._api_key,
+            'signed_key': self._signed_key,
             'url':url
                  }
         url = f"{self.API_BASE_URL}/api/user/me/settings/"
@@ -557,13 +606,13 @@ class AuthLiteClient():
         url = f"{self.API_BASE_URL}/api/user/me/widget/re-auth/token"
         params = {
             "code": code,
-            'api_key': self.api_key,
-            'signed_key': self.signed_key
+            'api_key': self._api_key,
+            'signed_key': self._signed_key
         }
         headers = {"accept": "application/json"}
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
-            rtn = self.jwt_decode(self.secret_key,response.json())
+            rtn = self.jwt_decode(self._secret_key,response.json())
             sub = json.loads(rtn["sub"])
             rtn.pop("sub")
             rtn["email"] = sub["email"]
@@ -593,12 +642,12 @@ class AuthLiteClient():
         headers = {'accept': 'application/json'}
         params = {
             'UserToken': token,
-            'api_key': self.api_key,
-            'signed_key': self.signed_key
+            'api_key': self._api_key,
+            'signed_key': self._signed_key
                  }
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
-            rtn = self.jwt_decode(self.secret_key,response.json())
+            rtn = self.jwt_decode(self._secret_key,response.json())
             sub = json.loads(rtn["sub"])
             rtn.pop("sub")
             rtn["email"] = sub["email"]
@@ -629,12 +678,12 @@ class AuthLiteClient():
         headers = {'accept': 'application/json'}
         params = {
             'AccessToken': AccessToken,
-            'api_key': self.api_key,
-            'signed_key': self.signed_key
+            'api_key': self._api_key,
+            'signed_key': self._signed_key
                  }
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:
-            rtn = self.jwt_decode(self.secret_key,response.json())
+            rtn = self.jwt_decode(self._secret_key,response.json())
             return rtn
         else:raise HTTPError(
             'Request failed with status code : {} \n this code contains a msg : {}'.format(
@@ -660,8 +709,8 @@ class AuthLiteClient():
         headers = {'accept': 'application/json'}
         params = {
             'RefreshToken': refresh_token,
-            'api_key': self.api_key,
-            'signed_key': self.signed_key
+            'api_key': self._api_key,
+            'signed_key': self._signed_key
                  }
         response = requests.get(url, headers=headers, params=params)
         if response.status_code == 200:return response.json()
@@ -686,8 +735,8 @@ class AuthLiteClient():
         headers = {'accept': 'application/json'}
         params = {
             'AccessToken': access_token,
-            'api_key': self.api_key,
-            'signed_key': self.signed_key
+            'api_key': self._api_key,
+            'signed_key': self._signed_key
                  }
         response = requests.get(url, headers=headers, params=params)
         return response.status_code == 200
@@ -715,8 +764,8 @@ class AuthLiteClient():
         t = AccessToken if AccessToken else RefreshToken
         params = {
             'Token': t,
-            'api_key': self.api_key,
-            'signed_key': self.signed_key,
+            'api_key': self._api_key,
+            'signed_key': self._signed_key,
             'AccessToken': tt,
             'SpecificTokenOnly':not revoke_all_tokens,
                 }
@@ -758,4 +807,22 @@ class AuthLiteClient():
             raise HTTPError('both tokens are invalid login again')
         
     def _set_edge_roles(self) -> list:
-        return []
+        self.Roles
+        url = f'{self.API_BASE_URL}/rbac/role'
+        headers = {'accept': 'application/json'}
+        params = {
+            'org_id': f'{self.org_id}',
+            'api_key': f'{self._api_key}',
+            'signed_key': f'{self._secret_key}'
+        }
+        response = requests.get(url, headers=headers, params=params)
+        roles = [Role(**role_data) for role_data in response.json()]
+        roles = GetAllRolesResponse(roles_list=roles, roles_json_list=[role.to_dict() for role in roles])
+        return roles.roles_json_list
+
+    def _re_init_roles(self) -> _Roles:
+        self.Roles: _Roles = _Roles(roles=self._set_edge_roles(), org_id=self.org_id, 
+                                    api_key=self._api_key, signed_key=self._signed_key, 
+                                    secret_key=self._secret_key, API_BASE_URL=self.API_BASE_URL,
+                                    InMemory=self.in_memory)
+        return self.Roles

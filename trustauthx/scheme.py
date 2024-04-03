@@ -36,7 +36,8 @@ class Permission:
 
 @dataclass
 class GetAllRolesResponse:
-    roles: List[Dict[str, Union[str, List[Dict[str, str]]]]]
+    roles_list: List[Role]
+    roles_json_list: List[Dict[str, Union[str, List[Dict[str, str]]]]]
 
 @dataclass
 class AddRoleResponse:
