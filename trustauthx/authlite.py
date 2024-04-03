@@ -264,7 +264,7 @@ class _Roles(_EdgeDBRoleQuery):
         params = {
             'org_id': f'{self.org_id}',
             'api_key': f'{self._api_key}',
-            'signed_key': f'{self._secret_key}'
+            'signed_key': f'{self._signed_key}'
         }
         response = requests.get(url, headers=headers, params=params)
         roles = [Role(**role_data) for role_data in response.json()]
@@ -305,7 +305,7 @@ class _Roles(_EdgeDBRoleQuery):
         params = {
             'org_id': f'{self.org_id}',
             'api_key': f'{self._api_key}',
-            'signed_key': f'{self._secret_key}'
+            'signed_key': f'{self._signed_key}'
         }
         permissions = [{k: v} for k, v in Permission_.items()]
         data = {
@@ -358,7 +358,7 @@ class _Roles(_EdgeDBRoleQuery):
         params = {
             'org_id': f'{self.org_id}',
             'api_key': f'{self._api_key}',
-            'signed_key': f'{self._secret_key}'
+            'signed_key': f'{self._signed_key}'
         }
         data = {
             "org_id": f'{self.org_id}',
@@ -402,7 +402,7 @@ class _Roles(_EdgeDBRoleQuery):
         params = {
             'org_id': f'{self.org_id}',
             'api_key': f'{self._api_key}',
-            'signed_key': f'{self._secret_key}'
+            'signed_key': f'{self._signed_key}'
         }
         permissions = [{k: v} for k, v in Permission_.items()]
         data = {
@@ -454,7 +454,7 @@ class _Roles(_EdgeDBRoleQuery):
         params = {
             'org_id': f'{self.org_id}',
             'api_key': f'{self._api_key}',
-            'signed_key': f'{self._secret_key}'
+            'signed_key': f'{self._signed_key}'
         }
         permissions = [{k: v} for k, v in Permission_.items()]
         data = {
@@ -814,7 +814,7 @@ class AuthLiteClient():
         params = {
             'org_id': f'{self.org_id}',
             'api_key': f'{self._api_key}',
-            'signed_key': f'{self._secret_key}'
+            'signed_key': f'{self._signed_key}'
         }
         response = requests.get(url, headers=headers, params=params)
         roles = [Role(**role_data) for role_data in response.json()]
