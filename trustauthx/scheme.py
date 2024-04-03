@@ -1,5 +1,6 @@
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Union
+from dataclasses import asdict, dataclass
+from typing import Dict, List, Union
+
 
 @dataclass
 class Permission:
@@ -10,8 +11,10 @@ class Permission:
         name (str): The name of the permission.
         value (str): The value of the permission.
     """
+
     name: str
     value: str
+
 
 @dataclass
 class Role:
@@ -24,20 +27,24 @@ class Role:
         name (str): The name of the role.
         permissions (List[Permission]): A list of permissions associated with the role.
     """
+
     org_id: str
     rol_id: str
     name: str
     permissions: List[Permission]
+
 
 @dataclass
 class Permission:
     name: str
     value: str
 
+
 @dataclass
 class GetAllRolesResponse:
     roles_list: List[Role]
     roles_json_list: List[Dict[str, Union[str, List[Dict[str, str]]]]]
+
 
 @dataclass
 class AddRoleResponse:
@@ -46,6 +53,7 @@ class AddRoleResponse:
     name: str
     permissions: List[Permission]
 
+
 @dataclass
 class DeleteRoleResponse:
     org_id: str
@@ -53,18 +61,19 @@ class DeleteRoleResponse:
     name: str
     permissions: List[Permission]
 
+
 @dataclass
 class AddPermissionResponse:
     org_id: str
     rol_id: str
     permissions: List[Dict[str, str]]
 
+
 @dataclass
 class DeletePermissionResponse:
     org_id: str
     rol_id: str
     permissions: List[Permission]
-
 
 
 """# Demo data
