@@ -155,8 +155,9 @@ class _EdgeDBRoleQuery:
             response = func(*args, **kwargs)
             # Check for "X-EDGE"
             x_edge = response.headers.get("X-EDGE")
-            if int(x_edge) != _EdgeDBRoleQuery.total_roles:
-                _EdgeDBRoleQuery.reinitialize_all() # Add data
+            if x_edge != None or bool:
+                if int(x_edge) != _EdgeDBRoleQuery.total_roles:
+                    _EdgeDBRoleQuery.reinitialize_all() # Add data
             return response
         return wrapper
 
