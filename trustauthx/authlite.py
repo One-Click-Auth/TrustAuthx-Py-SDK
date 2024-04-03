@@ -45,7 +45,7 @@ class _EdgeDBRoleQuery:
         """
         self.in_memory = in_memory
         if self.in_memory:
-            self.__class__.roles = {role_id: permissions for role in roles for role_id, permissions in role.items()}
+            self.__class__.roles = {role['rol_id']: role['permissions'][0] for role in roles}
         else:
             self.conn = sqlite3.connect(':memory:')  # replace ':memory:' with your database path
             self.cursor = self.conn.cursor()
@@ -127,12 +127,12 @@ class _EdgeDBRoleQuery:
         if self.in_memory:
             r = len(self.__class__.roles)
             _EdgeDBRoleQuery.total_roles = r
-            return 
+            return r
         else:
             self.cursor.execute("SELECT COUNT(*) FROM roles")
             r = self.cursor.fetchone()[0]
             _EdgeDBRoleQuery.total_roles = r
-            return 
+            return r
 
     @classmethod
     def reinitialize_all(foreground=True):
@@ -820,6 +820,7 @@ class AuthLiteClient():
         response = requests.get(url, headers=headers, params=params)
         roles = [Role(**role_data) for role_data in response.json()]
         roles = GetAllRolesResponse(roles_list=roles, roles_json_list=[asdict(role) for role in roles])
+        # print(roles.roles_json_list)
         return roles.roles_json_list
 
     def _re_init_roles(self) -> _Roles:
@@ -828,3 +829,15 @@ class AuthLiteClient():
                                     secret_key=self._secret_key, API_BASE_URL=self.API_BASE_URL,
                                     InMemory=self.in_memory)
         return self.Roles
+    
+    def attach_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
+        # add this and test
+        pass
+
+    def remove_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
+        # add this and test
+        pass
+
+    def update_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
+        # add this and test
+        pass
