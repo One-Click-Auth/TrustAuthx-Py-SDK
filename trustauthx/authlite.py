@@ -7,6 +7,7 @@ import sqlite3
 from .scheme import *
 from functools import wraps
 import threading
+from dataclasses import asdict
 
 class _EdgeDBRoleQuery:
     """
@@ -268,7 +269,7 @@ class _Roles(_EdgeDBRoleQuery):
         }
         response = requests.get(url, headers=headers, params=params)
         roles = [Role(**role_data) for role_data in response.json()]
-        return GetAllRolesResponse(roles_list=roles, roles_json_list=[role.to_dict() for role in roles])
+        return GetAllRolesResponse(roles_list=roles, roles_json_list=[asdict(role) for role in roles])
 
     def add_role(self, name, **Permission_)->AddRoleResponse:
         """
@@ -808,6 +809,7 @@ class AuthLiteClient():
             raise HTTPError('both tokens are invalid login again')
         
     def _set_edge_roles(self) -> list:
+        # self.Roles
         url = f'{self.API_BASE_URL}/rbac/role'
         headers = {'accept': 'application/json'}
         params = {
@@ -817,7 +819,7 @@ class AuthLiteClient():
         }
         response = requests.get(url, headers=headers, params=params)
         roles = [Role(**role_data) for role_data in response.json()]
-        roles = GetAllRolesResponse(roles_list=roles, roles_json_list=[role.to_dict() for role in roles])
+        roles = GetAllRolesResponse(roles_list=roles, roles_json_list=[asdict(role) for role in roles])
         return roles.roles_json_list
 
     def _re_init_roles(self) -> _Roles:
