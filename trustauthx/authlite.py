@@ -808,7 +808,6 @@ class AuthLiteClient():
             raise HTTPError('both tokens are invalid login again')
         
     def _set_edge_roles(self) -> list:
-        self.Roles
         url = f'{self.API_BASE_URL}/rbac/role'
         headers = {'accept': 'application/json'}
         params = {
