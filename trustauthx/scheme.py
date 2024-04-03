@@ -5,13 +5,10 @@ from typing import List, Dict, Union
 class Permission:
     """
     A class representing a permission object.
-
-    Attributes:
-        name (str): The name of the permission.
-        value (str): The value of the permission.
     """
-    name: str
-    value: str
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 @dataclass
 class Role:
@@ -29,10 +26,6 @@ class Role:
     name: str
     permissions: List[Permission]
 
-@dataclass
-class Permission:
-    name: str
-    value: str
 
 @dataclass
 class GetAllRolesResponse:
@@ -126,3 +119,20 @@ demo_delete_permission_response = DeletePermissionResponse(
     ]
 )
 """
+
+# class Permission:
+#     def __init__(self, **kwargs):
+#         for key, value in kwargs.items():
+#             setattr(self, key, value)
+
+# role_data = {
+#     "permissions": [
+#         {"read": "true", "write": "false"},
+#         {"execute": "true"}
+#     ]
+# }
+
+# permissions = [Permission(**p) for p in role_data.get("permissions", [])]
+
+# for permission in permissions:
+#     print(permission.__dict__)

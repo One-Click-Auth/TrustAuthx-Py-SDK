@@ -321,7 +321,7 @@ class _Roles(_EdgeDBRoleQuery):
             org_id=role_data.get("org_id"),
             rol_id=role_data.get("rol_id"),
             name=role_data.get("name"),
-            permissions=permissions
+            permissions=[p.__dict__ for p in permissions]
         )
 
     def delete_role(self, rol_id) -> DeleteRoleResponse:
@@ -372,7 +372,7 @@ class _Roles(_EdgeDBRoleQuery):
             org_id=role_data.get("org_id"),
             rol_id=role_data.get("rol_id"),
             name=role_data.get("name"),
-            permissions=permissions
+            permissions=[p.__dict__ for p in permissions]
         )
 
     def add_permission(self, rol_id, foreground=False, **Permission_) -> AddPermissionResponse:
@@ -413,12 +413,12 @@ class _Roles(_EdgeDBRoleQuery):
         }
         response = requests.post(url, headers=headers, params=params, data=json.dumps(data))
         response_data = response.json()
-        permissions = [{k: v} for k, v in permissions.items()]
+        permissions = [Permission(**{k: v}) for k, v in permissions.items()]
         self.reinitialize_all(foreground)
         return AddPermissionResponse(
             org_id=response_data.get("org_id"),
             rol_id=response_data.get("rol_id"),
-            permissions=permissions
+            permissions=[p.__dict__ for p in permissions]
         )
 
     def delete_permission(self, rol_id, foreground=False, **Permission_) -> DeletePermissionResponse:
