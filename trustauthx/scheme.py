@@ -1,14 +1,17 @@
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Union
+from dataclasses import asdict, dataclass
+from typing import Dict, List, Union
+
 
 @dataclass
 class Permission:
     """
     A class representing a permission object.
     """
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+
 
 @dataclass
 class Role:
@@ -21,6 +24,7 @@ class Role:
         name (str): The name of the role.
         permissions (List[Permission]): A list of permissions associated with the role.
     """
+
     org_id: str
     rol_id: str
     name: str
@@ -32,12 +36,14 @@ class GetAllRolesResponse:
     roles_list: List[Role]
     roles_json_list: List[Dict[str, Union[str, List[Dict[str, str]]]]]
 
+
 @dataclass
 class AddRoleResponse:
     org_id: str
     rol_id: str
     name: str
     permissions: List[Permission]
+
 
 @dataclass
 class DeleteRoleResponse:
@@ -46,18 +52,19 @@ class DeleteRoleResponse:
     name: str
     permissions: List[Permission]
 
+
 @dataclass
 class AddPermissionResponse:
     org_id: str
     rol_id: str
     permissions: List[Dict[str, str]]
 
+
 @dataclass
 class DeletePermissionResponse:
     org_id: str
     rol_id: str
     permissions: List[Permission]
-
 
 
 """# Demo data
