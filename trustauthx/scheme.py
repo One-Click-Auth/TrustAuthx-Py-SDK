@@ -9,7 +9,9 @@ class Permission:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
-
+    
+    def to_dict(self):
+        return asdict(self)
 @dataclass
 class Role:
     """
@@ -26,12 +28,15 @@ class Role:
     name: str
     permissions: List[Permission]
 
-
+    def to_dict(self):
+        return asdict(self)
 @dataclass
 class GetAllRolesResponse:
     roles_list: List[Role]
     roles_json_list: List[Dict[str, Union[str, List[Dict[str, str]]]]]
 
+    def to_dict(self):
+        return asdict(self)
 @dataclass
 class AddRoleResponse:
     org_id: str
@@ -39,6 +44,8 @@ class AddRoleResponse:
     name: str
     permissions: List[Permission]
 
+    def to_dict(self):
+        return asdict(self)
 @dataclass
 class DeleteRoleResponse:
     org_id: str
@@ -46,11 +53,16 @@ class DeleteRoleResponse:
     name: str
     permissions: List[Permission]
 
+    def to_dict(self):
+        return asdict(self)
 @dataclass
 class AddPermissionResponse:
     org_id: str
     rol_id: str
     permissions: List[Dict[str, str]]
+
+    def to_dict(self):
+        return asdict(self)
 
 @dataclass
 class DeletePermissionResponse:
@@ -58,7 +70,27 @@ class DeletePermissionResponse:
     rol_id: str
     permissions: List[Permission]
 
+    def to_dict(self):
+        return asdict(self)
 
+@dataclass
+class User:
+    iss: str
+    jti: str
+    access_token: str
+    type: str
+    exp: float
+    refresh_token: str
+    refresh_exp: int
+    scope: List[str]
+    img: str
+    name: str
+    iat: int
+    email: str
+    uid: str
+
+    def to_dict(self):
+        return asdict(self)
 
 """# Demo data
 demo_get_all_roles_response = GetAllRolesResponse(roles=[

@@ -466,7 +466,7 @@ class _Roles(_EdgeDBRoleQuery):
         response = requests.delete(url, headers=headers, params=params, data=json.dumps(data))
         self.reinitialize_all(foreground)
         return response.json()
-    
+  
 class AuthLiteClient():
     instances = []
 
@@ -626,7 +626,7 @@ class AuthLiteClient():
                                                                             response.text)
                             )
 
-    def get_user(self, token) -> dict:
+    def get_user(self, token, return_class=False) -> User|dict:
         """
         Validates the given authentication token and returns user data.
 
@@ -654,7 +654,8 @@ class AuthLiteClient():
             rtn.pop("sub")
             rtn["email"] = sub["email"]
             rtn["uid"] = sub["uid"]
-            return rtn
+            if not return_class:return User(rtn).to_dict()
+            else: return User(rtn)
         else:raise HTTPError(
             'Request failed with status code : {} \n this code contains a msg : {}'.format(
                                                                             response.status_code, 
