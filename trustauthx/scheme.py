@@ -1,14 +1,20 @@
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Union
+from dataclasses import asdict, dataclass
+from typing import Dict, List, Union
+
 
 @dataclass
 class Permission:
     """
     A class representing a permission object.
     """
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+    def to_dict(self):
+        return asdict(self)
+
 
 @dataclass
 class Role:
@@ -21,16 +27,24 @@ class Role:
         name (str): The name of the role.
         permissions (List[Permission]): A list of permissions associated with the role.
     """
+
     org_id: str
     rol_id: str
     name: str
     permissions: List[Permission]
+
+    def to_dict(self):
+        return asdict(self)
 
 
 @dataclass
 class GetAllRolesResponse:
     roles_list: List[Role]
     roles_json_list: List[Dict[str, Union[str, List[Dict[str, str]]]]]
+
+    def to_dict(self):
+        return asdict(self)
+
 
 @dataclass
 class AddRoleResponse:
@@ -39,6 +53,10 @@ class AddRoleResponse:
     name: str
     permissions: List[Permission]
 
+    def to_dict(self):
+        return asdict(self)
+
+
 @dataclass
 class DeleteRoleResponse:
     org_id: str
@@ -46,11 +64,19 @@ class DeleteRoleResponse:
     name: str
     permissions: List[Permission]
 
+    def to_dict(self):
+        return asdict(self)
+
+
 @dataclass
 class AddPermissionResponse:
     org_id: str
     rol_id: str
     permissions: List[Dict[str, str]]
+
+    def to_dict(self):
+        return asdict(self)
+
 
 @dataclass
 class DeletePermissionResponse:
@@ -58,6 +84,39 @@ class DeletePermissionResponse:
     rol_id: str
     permissions: List[Permission]
 
+    def to_dict(self):
+        return asdict(self)
+
+
+@dataclass
+class User:
+    iss: str
+    jti: str
+    access_token: str
+    type: str
+    exp: float
+    refresh_token: str
+    refresh_exp: int
+    scope: List[str]
+    img: str
+    name: str
+    iat: int
+    email: str
+    uid: str
+
+    def to_dict(self):
+        return asdict(self)
+
+
+@dataclass
+class SignOffSessionReplace:
+    uid: str
+    access_token: str
+    refresh_token: str
+    role: List[str]
+
+    def to_dict(self):
+        return asdict(self)
 
 
 """# Demo data
