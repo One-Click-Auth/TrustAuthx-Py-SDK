@@ -1,9 +1,9 @@
 import json
-from lib2to3.pgen2.parse import ParseError
 import sqlite3
 import threading
 from dataclasses import asdict
 from functools import wraps
+from lib2to3.pgen2.parse import ParseError
 
 import requests
 from jose import JWTError, jwt
@@ -506,6 +506,7 @@ class _Roles(_EdgeDBRoleQuery):
         self.reinitialize_all(foreground)
         return response.json()
 
+
 class AuthLiteClient:
     instances = []
     """
@@ -686,7 +687,7 @@ class AuthLiteClient:
                 )
             )
 
-    def get_user(self, token, return_class=False) -> User|dict:
+    def get_user(self, token, return_class=False) -> User | dict:
         """
         Validates the given authentication token and returns user data.
 
@@ -714,13 +715,16 @@ class AuthLiteClient:
             rtn.pop("sub")
             rtn["email"] = sub["email"]
             rtn["uid"] = sub["uid"]
-            if not return_class:return User(rtn).to_dict()
-            else: return User(rtn)
-        else:raise HTTPError(
-            'Request failed with status code : {} \n this code contains a msg : {}'.format(
-                                                                            response.status_code, 
-                                                                            response.text)
-                            )
+            if not return_class:
+                return User(rtn).to_dict()
+            else:
+                return User(rtn)
+        else:
+            raise HTTPError(
+                "Request failed with status code : {} \n this code contains a msg : {}".format(
+                    response.status_code, response.text
+                )
+            )
 
     def get_user_data(self, AccessToken) -> dict:
         """
@@ -912,9 +916,15 @@ class AuthLiteClient:
         )
         return self.Roles
 
-    def attach_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, 
-                    refresh_token=None, access_token=None,
-                    return_class:bool=False) -> dict|SignOffSessionReplace:
+    def attach_role(
+        self,
+        uid: str,
+        rol_ids: str | list,
+        signoff_session_and_assign=False,
+        refresh_token=None,
+        access_token=None,
+        return_class: bool = False,
+    ) -> dict | SignOffSessionReplace:
         """
         Attaches a role to a user.
 
@@ -933,10 +943,10 @@ class AuthLiteClient:
             ParseError: If signoff_session_and_assign is True but refresh_token or access_token is not provided.
         """
         if signoff_session_and_assign:
-            if not refresh_token or not access_token: 
+            if not refresh_token or not access_token:
                 raise ParseError(
                     "must parse refresh_token and access_token if signoff_session_and_assign is true"
-                    )
+                )
         url = f"{self.API_BASE_URL}/rbac/assign/permission"
         headers = {
             "accept": "application/json",
@@ -945,12 +955,15 @@ class AuthLiteClient:
         params = {
             "org_id": self.org_id,
             "api_key": self._api_key,
-            "signed_key": self._signed_key, 
+            "signed_key": self._signed_key,
         }
         rols = []
-        if isinstance(rol_ids) == str: rols.append(rol_ids)
-        elif isinstance(rol_ids) == list: rols = [i for i in rol_ids]
-        else:raise TypeError()
+        if isinstance(rol_ids) == str:
+            rols.append(rol_ids)
+        elif isinstance(rol_ids) == list:
+            rols = [i for i in rol_ids]
+        else:
+            raise TypeError()
         data = {
             "uid": uid,
             "rol_id": rol_ids,
@@ -960,14 +973,23 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        if signoff_session_and_assign: return response.json()
-        else: 
-            if return_class: return SignOffSessionReplace(response.json())
-            else: return SignOffSessionReplace(response.json()).to_dict()
+        if signoff_session_and_assign:
+            return response.json()
+        else:
+            if return_class:
+                return SignOffSessionReplace(response.json())
+            else:
+                return SignOffSessionReplace(response.json()).to_dict()
 
-    def remove_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, 
-                    refresh_token=None, access_token=None,
-                    return_class:bool=False) -> dict|SignOffSessionReplace:
+    def remove_role(
+        self,
+        uid: str,
+        rol_ids: str | list,
+        signoff_session_and_assign=False,
+        refresh_token=None,
+        access_token=None,
+        return_class: bool = False,
+    ) -> dict | SignOffSessionReplace:
         """
         Removes a role from a user.
 
@@ -986,10 +1008,10 @@ class AuthLiteClient:
             ParseError: If signoff_session_and_assign is True but refresh_token or access_token is not provided.
         """
         if signoff_session_and_assign:
-            if not refresh_token or not access_token: 
+            if not refresh_token or not access_token:
                 raise ParseError(
                     "must parse refresh_token and access_token if signoff_session_and_assign is true"
-                    )
+                )
         url = f"{self.API_BASE_URL}/rbac/assign/permission"
         headers = {
             "accept": "application/json",
@@ -998,12 +1020,15 @@ class AuthLiteClient:
         params = {
             "org_id": self.org_id,
             "api_key": self._api_key,
-            "signed_key": self._signed_key, 
+            "signed_key": self._signed_key,
         }
         rols = []
-        if isinstance(rol_ids) == str: rols.append(rol_ids)
-        elif isinstance(rol_ids) == list: rols = [i for i in rol_ids]
-        else:raise TypeError()
+        if isinstance(rol_ids) == str:
+            rols.append(rol_ids)
+        elif isinstance(rol_ids) == list:
+            rols = [i for i in rol_ids]
+        else:
+            raise TypeError()
         data = {
             "uid": uid,
             "rol_id": [],
@@ -1013,14 +1038,24 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        if signoff_session_and_assign: return response.json()
-        else: 
-            if return_class: return SignOffSessionReplace(response.json())
-            else: return SignOffSessionReplace(response.json()).to_dict()
+        if signoff_session_and_assign:
+            return response.json()
+        else:
+            if return_class:
+                return SignOffSessionReplace(response.json())
+            else:
+                return SignOffSessionReplace(response.json()).to_dict()
 
-    def update_role(self, uid:str, rol_ids_to_add:str|list, rol_ids_to_remove:str|list, 
-                    signoff_session_and_assign=False, refresh_token=None, access_token=None,
-                    return_class:bool=False) -> dict|SignOffSessionReplace:
+    def update_role(
+        self,
+        uid: str,
+        rol_ids_to_add: str | list,
+        rol_ids_to_remove: str | list,
+        signoff_session_and_assign=False,
+        refresh_token=None,
+        access_token=None,
+        return_class: bool = False,
+    ) -> dict | SignOffSessionReplace:
         """
         Updates a user's roles by adding and/or removing roles.
 
@@ -1040,10 +1075,10 @@ class AuthLiteClient:
             ParseError: If signoff_session_and_assign is True but refresh_token or access_token is not provided.
         """
         if signoff_session_and_assign:
-            if not refresh_token or not access_token: 
+            if not refresh_token or not access_token:
                 raise ParseError(
                     "must parse refresh_token and access_token if signoff_session_and_assign is true"
-                    )
+                )
         url = f"{self.API_BASE_URL}/rbac/assign/permission"
         headers = {
             "accept": "application/json",
@@ -1052,16 +1087,22 @@ class AuthLiteClient:
         params = {
             "org_id": self.org_id,
             "api_key": self._api_key,
-            "signed_key": self._signed_key, 
+            "signed_key": self._signed_key,
         }
         rols_add = []
-        if isinstance(rol_ids_to_add) == str: rols_add.append(rol_ids_to_add)
-        elif isinstance(rol_ids_to_add) == list: rols_add = [i for i in rol_ids_to_add]
-        else:raise TypeError()
+        if isinstance(rol_ids_to_add) == str:
+            rols_add.append(rol_ids_to_add)
+        elif isinstance(rol_ids_to_add) == list:
+            rols_add = [i for i in rol_ids_to_add]
+        else:
+            raise TypeError()
         rols_rem = []
-        if isinstance(rol_ids_to_remove) == str: rols_rem.append(rol_ids_to_remove)
-        elif isinstance(rol_ids_to_remove) == list: rols_rem = [i for i in rol_ids_to_remove]
-        else:raise TypeError()
+        if isinstance(rol_ids_to_remove) == str:
+            rols_rem.append(rol_ids_to_remove)
+        elif isinstance(rol_ids_to_remove) == list:
+            rols_rem = [i for i in rol_ids_to_remove]
+        else:
+            raise TypeError()
         data = {
             "uid": uid,
             "rol_id": rols_add,
@@ -1071,7 +1112,10 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        if signoff_session_and_assign: return response.json()
-        else: 
-            if return_class: return SignOffSessionReplace(response.json())
-            else: return SignOffSessionReplace(response.json()).to_dict()
+        if signoff_session_and_assign:
+            return response.json()
+        else:
+            if return_class:
+                return SignOffSessionReplace(response.json())
+            else:
+                return SignOffSessionReplace(response.json()).to_dict()

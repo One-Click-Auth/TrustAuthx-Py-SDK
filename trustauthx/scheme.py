@@ -1,17 +1,21 @@
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Union
+from dataclasses import asdict, dataclass
+from typing import Dict, List, Union
+
 
 @dataclass
 class Permission:
     """
     A class representing a permission object.
     """
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
-    
+
     def to_dict(self):
         return asdict(self)
+
+
 @dataclass
 class Role:
     """
@@ -23,6 +27,7 @@ class Role:
         name (str): The name of the role.
         permissions (List[Permission]): A list of permissions associated with the role.
     """
+
     org_id: str
     rol_id: str
     name: str
@@ -30,6 +35,8 @@ class Role:
 
     def to_dict(self):
         return asdict(self)
+
+
 @dataclass
 class GetAllRolesResponse:
     roles_list: List[Role]
@@ -37,6 +44,8 @@ class GetAllRolesResponse:
 
     def to_dict(self):
         return asdict(self)
+
+
 @dataclass
 class AddRoleResponse:
     org_id: str
@@ -46,6 +55,8 @@ class AddRoleResponse:
 
     def to_dict(self):
         return asdict(self)
+
+
 @dataclass
 class DeleteRoleResponse:
     org_id: str
@@ -55,6 +66,8 @@ class DeleteRoleResponse:
 
     def to_dict(self):
         return asdict(self)
+
+
 @dataclass
 class AddPermissionResponse:
     org_id: str
@@ -64,6 +77,7 @@ class AddPermissionResponse:
     def to_dict(self):
         return asdict(self)
 
+
 @dataclass
 class DeletePermissionResponse:
     org_id: str
@@ -72,6 +86,7 @@ class DeletePermissionResponse:
 
     def to_dict(self):
         return asdict(self)
+
 
 @dataclass
 class User:
@@ -91,7 +106,8 @@ class User:
 
     def to_dict(self):
         return asdict(self)
-    
+
+
 @dataclass
 class SignOffSessionReplace:
     uid: str
@@ -101,6 +117,7 @@ class SignOffSessionReplace:
 
     def to_dict(self):
         return asdict(self)
+
 
 """# Demo data
 demo_get_all_roles_response = GetAllRolesResponse(roles=[
