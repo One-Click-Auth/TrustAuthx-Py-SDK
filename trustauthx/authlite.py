@@ -1,4 +1,5 @@
 import json
+from lib2to3.pgen2.parse import ParseError
 import sqlite3
 import threading
 from dataclasses import asdict
@@ -911,14 +912,99 @@ class AuthLiteClient:
         )
         return self.Roles
 
-    def attach_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
-        # add this and test
-        pass
+    def attach_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, refresh_token=None, access_token=None):
+        if signoff_session_and_assign:
+            if not refresh_token or not access_token: 
+                raise ParseError(
+                    "must parse refresh_token and access_token if signoff_session_and_assign is true"
+                    )
+        url = f"{self.API_BASE_URL}/rbac/assign/permission"
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        params = {
+            "org_id": self.org_id,
+            "api_key": self._api_key,
+            "signed_key": self._signed_key, 
+        }
+        rols = []
+        if isinstance(rol_ids) == str: rols.append(rol_ids)
+        elif isinstance(rol_ids) == list: rols = [i for i in rol_ids]
+        else:raise TypeError()
+        data = {
+            "uid": uid,
+            "rol_id": rol_ids,
+            "inplace": [],
+            "signoff_session_and_assign": signoff_session_and_assign,
+            "AccessToken": access_token,
+            "RefreshToken": refresh_token,
+        }
+        response = requests.post(url, headers=headers, params=params, json=data)
+        return response.json()
 
-    def remove_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
-        # add this and test
-        pass
+    def remove_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, refresh_token=None, access_token=None):
+        if signoff_session_and_assign:
+            if not refresh_token or not access_token: 
+                raise ParseError(
+                    "must parse refresh_token and access_token if signoff_session_and_assign is true"
+                    )
+        url = f"{self.API_BASE_URL}/rbac/assign/permission"
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        params = {
+            "org_id": self.org_id,
+            "api_key": self._api_key,
+            "signed_key": self._signed_key, 
+        }
+        rols = []
+        if isinstance(rol_ids) == str: rols.append(rol_ids)
+        elif isinstance(rol_ids) == list: rols = [i for i in rol_ids]
+        else:raise TypeError()
+        data = {
+            "uid": uid,
+            "rol_id": [],
+            "inplace": rol_ids,
+            "signoff_session_and_assign": signoff_session_and_assign,
+            "AccessToken": access_token,
+            "RefreshToken": refresh_token,
+        }
+        response = requests.post(url, headers=headers, params=params, json=data)
+        return response.json()
 
-    def update_role(self, uid, signoff_session_and_assign, refresh_token, access_token):
-        # add this and test
-        pass
+    def update_role(self, uid:str, rol_ids_to_add:str|list, rol_ids_to_remove:str|list, signoff_session_and_assign=False, refresh_token=None, access_token=None):
+        if signoff_session_and_assign:
+            if not refresh_token or not access_token: 
+                raise ParseError(
+                    "must parse refresh_token and access_token if signoff_session_and_assign is true"
+                    )
+        url = f"{self.API_BASE_URL}/rbac/assign/permission"
+        headers = {
+            "accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        params = {
+            "org_id": self.org_id,
+            "api_key": self._api_key,
+            "signed_key": self._signed_key, 
+        }
+        rols_add = []
+        if isinstance(rol_ids_to_add) == str: rols_add.append(rol_ids_to_add)
+        elif isinstance(rol_ids_to_add) == list: rols_add = [i for i in rol_ids_to_add]
+        else:raise TypeError()
+        rols_rem = []
+        if isinstance(rol_ids_to_remove) == str: rols_rem.append(rol_ids_to_remove)
+        elif isinstance(rol_ids_to_remove) == list: rols_rem = [i for i in rol_ids_to_remove]
+        else:raise TypeError()
+        data = {
+            "uid": uid,
+            "rol_id": rols_add,
+            "inplace": rols_rem,
+            "signoff_session_and_assign": signoff_session_and_assign,
+            "AccessToken": access_token,
+            "RefreshToken": refresh_token,
+        }
+        response = requests.post(url, headers=headers, params=params, json=data)
+        return response.json()
