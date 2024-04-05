@@ -91,6 +91,16 @@ class User:
 
     def to_dict(self):
         return asdict(self)
+    
+@dataclass
+class SignOffSessionReplace:
+    uid: str
+    access_token: str
+    refresh_token: str
+    role: List[str]
+
+    def to_dict(self):
+        return asdict(self)
 
 """# Demo data
 demo_get_all_roles_response = GetAllRolesResponse(roles=[

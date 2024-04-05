@@ -912,7 +912,26 @@ class AuthLiteClient:
         )
         return self.Roles
 
-    def attach_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, refresh_token=None, access_token=None):
+    def attach_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, 
+                    refresh_token=None, access_token=None,
+                    return_class:bool=False) -> dict|SignOffSessionReplace:
+        """
+        Attaches a role to a user.
+
+        Args:
+            uid (str): The user ID to attach the role to.
+            rol_ids (str | list): The ID(s) of the role(s) to attach.
+            signoff_session_and_assign (bool, optional): Whether to sign off the session and assign. Default is False.
+            refresh_token (str, optional): The refresh token for authentication.
+            access_token (str, optional): The access token for authentication.
+            return_class (bool, optional): Whether to return a class instance. Default is False.
+
+        Returns:
+            dict | SignOffSessionReplace: The response from the API, or a class instance if return_class is True.
+
+        Raises:
+            ParseError: If signoff_session_and_assign is True but refresh_token or access_token is not provided.
+        """
         if signoff_session_and_assign:
             if not refresh_token or not access_token: 
                 raise ParseError(
@@ -941,9 +960,31 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        return response.json()
+        if signoff_session_and_assign: return response.json()
+        else: 
+            if return_class: return SignOffSessionReplace(response.json())
+            else: return SignOffSessionReplace(response.json()).to_dict()
 
-    def remove_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, refresh_token=None, access_token=None):
+    def remove_role(self, uid:str, rol_ids:str|list, signoff_session_and_assign=False, 
+                    refresh_token=None, access_token=None,
+                    return_class:bool=False) -> dict|SignOffSessionReplace:
+        """
+        Removes a role from a user.
+
+        Args:
+            uid (str): The user ID to remove the role from.
+            rol_ids (str | list): The ID(s) of the role(s) to remove.
+            signoff_session_and_assign (bool, optional): Whether to sign off the session and assign. Default is False.
+            refresh_token (str, optional): The refresh token for authentication.
+            access_token (str, optional): The access token for authentication.
+            return_class (bool, optional): Whether to return a class instance. Default is False.
+
+        Returns:
+            dict | SignOffSessionReplace: The response from the API, or a class instance if return_class is True.
+
+        Raises:
+            ParseError: If signoff_session_and_assign is True but refresh_token or access_token is not provided.
+        """
         if signoff_session_and_assign:
             if not refresh_token or not access_token: 
                 raise ParseError(
@@ -972,9 +1013,32 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        return response.json()
+        if signoff_session_and_assign: return response.json()
+        else: 
+            if return_class: return SignOffSessionReplace(response.json())
+            else: return SignOffSessionReplace(response.json()).to_dict()
 
-    def update_role(self, uid:str, rol_ids_to_add:str|list, rol_ids_to_remove:str|list, signoff_session_and_assign=False, refresh_token=None, access_token=None):
+    def update_role(self, uid:str, rol_ids_to_add:str|list, rol_ids_to_remove:str|list, 
+                    signoff_session_and_assign=False, refresh_token=None, access_token=None,
+                    return_class:bool=False) -> dict|SignOffSessionReplace:
+        """
+        Updates a user's roles by adding and/or removing roles.
+
+        Args:
+            uid (str): The user ID to update roles for.
+            rol_ids_to_add (str | list): The ID(s) of the role(s) to add.
+            rol_ids_to_remove (str | list): The ID(s) of the role(s) to remove.
+            signoff_session_and_assign (bool, optional): Whether to sign off the session and assign. Default is False.
+            refresh_token (str, optional): The refresh token for authentication.
+            access_token (str, optional): The access token for authentication.
+            return_class (bool, optional): Whether to return a class instance. Default is False.
+
+        Returns:
+            dict | SignOffSessionReplace: The response from the API, or a class instance if return_class is True.
+
+        Raises:
+            ParseError: If signoff_session_and_assign is True but refresh_token or access_token is not provided.
+        """
         if signoff_session_and_assign:
             if not refresh_token or not access_token: 
                 raise ParseError(
@@ -1007,4 +1071,7 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        return response.json()
+        if signoff_session_and_assign: return response.json()
+        else: 
+            if return_class: return SignOffSessionReplace(response.json())
+            else: return SignOffSessionReplace(response.json()).to_dict()
