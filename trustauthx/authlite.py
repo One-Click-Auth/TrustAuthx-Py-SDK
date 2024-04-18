@@ -4,12 +4,13 @@ import threading
 from dataclasses import asdict
 from functools import wraps
 from lib2to3.pgen2.parse import ParseError
+from typing import Union
 
 import requests
 from jose import JWTError, jwt
 from jose.constants import ALGORITHMS
 from requests.exceptions import HTTPError
-from typing import Union
+
 from .scheme import *
 
 
