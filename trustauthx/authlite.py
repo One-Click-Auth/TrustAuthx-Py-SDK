@@ -4,6 +4,7 @@ import threading
 from dataclasses import asdict
 from functools import wraps
 from lib2to3.pgen2.parse import ParseError
+from typing import Union
 
 import requests
 from jose import JWTError, jwt
@@ -687,7 +688,7 @@ class AuthLiteClient:
                 )
             )
 
-    def get_user(self, token, return_class=False) -> User | dict:
+    def get_user(self, token, return_class=False) -> Union[User, dict]:
         """
         Validates the given authentication token and returns user data.
 
@@ -919,12 +920,12 @@ class AuthLiteClient:
     def attach_role(
         self,
         uid: str,
-        rol_ids: str | list,
+        rol_ids: Union[str, list],
         signoff_session_and_assign=False,
         refresh_token=None,
         access_token=None,
         return_class: bool = False,
-    ) -> dict | SignOffSessionReplace:
+    ) -> Union[dict, SignOffSessionReplace]:
         """
         Attaches a role to a user.
 
@@ -984,12 +985,12 @@ class AuthLiteClient:
     def remove_role(
         self,
         uid: str,
-        rol_ids: str | list,
+        rol_ids: Union[str, list],
         signoff_session_and_assign=False,
         refresh_token=None,
         access_token=None,
         return_class: bool = False,
-    ) -> dict | SignOffSessionReplace:
+    ) -> Union[dict, SignOffSessionReplace]:
         """
         Removes a role from a user.
 
@@ -1049,13 +1050,13 @@ class AuthLiteClient:
     def update_role(
         self,
         uid: str,
-        rol_ids_to_add: str | list,
-        rol_ids_to_remove: str | list,
+        rol_ids_to_add: Union[str, list],
+        rol_ids_to_remove: Union[str, list],
         signoff_session_and_assign=False,
         refresh_token=None,
         access_token=None,
         return_class: bool = False,
-    ) -> dict | SignOffSessionReplace:
+    ) -> Union[dict, SignOffSessionReplace]:
         """
         Updates a user's roles by adding and/or removing roles.
 
