@@ -505,7 +505,7 @@ class _Roles(_EdgeDBRoleQuery):
             url, headers=headers, params=params, data=json.dumps(data)
         )
         self.reinitialize_all(foreground)
-        return response.json()
+        return DeletePermissionResponse(**response.json())
 
 
 class AuthLiteClient:
@@ -601,6 +601,7 @@ class AuthLiteClient:
         self._signed_key = self.jwt_encode(
             key=self._secret_key, data={"api_key": self._api_key}
         )
+        # print(f"{(self._api_key, self.org_id, self._signed_key)}")
         self.API_BASE_URL = API_BASE_URL
         self.in_memory = in_memory
         self.Roles: _Roles = _Roles(
@@ -717,9 +718,9 @@ class AuthLiteClient:
             rtn["email"] = sub["email"]
             rtn["uid"] = sub["uid"]
             if not return_class:
-                return User(rtn).to_dict()
+                return rtn
             else:
-                return User(rtn)
+                return User(**rtn)
         else:
             raise HTTPError(
                 "Request failed with status code : {} \n this code contains a msg : {}".format(
@@ -898,7 +899,8 @@ class AuthLiteClient:
             "signed_key": f"{self._signed_key}",
         }
         response = requests.get(url, headers=headers, params=params)
-        roles = [Role(**role_data) for role_data in response.json()]
+        response_text = response.json()
+        roles = [Role(**role_data) for role_data in response_text]
         roles = GetAllRolesResponse(
             roles_list=roles, roles_json_list=[asdict(role) for role in roles]
         )
@@ -959,9 +961,9 @@ class AuthLiteClient:
             "signed_key": self._signed_key,
         }
         rols = []
-        if isinstance(rol_ids) == str:
+        if isinstance(rol_ids, str):
             rols.append(rol_ids)
-        elif isinstance(rol_ids) == list:
+        elif isinstance(rol_ids, list):
             rols = [i for i in rol_ids]
         else:
             raise TypeError()
@@ -974,13 +976,13 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        if signoff_session_and_assign:
+        if not signoff_session_and_assign:
             return response.json()
         else:
             if return_class:
-                return SignOffSessionReplace(response.json())
+                return SignOffSessionReplace(**response.json())
             else:
-                return SignOffSessionReplace(response.json()).to_dict()
+                return SignOffSessionReplace(**response.json()).to_dict()
 
     def remove_role(
         self,
@@ -1024,9 +1026,9 @@ class AuthLiteClient:
             "signed_key": self._signed_key,
         }
         rols = []
-        if isinstance(rol_ids) == str:
+        if isinstance(rol_ids, str):
             rols.append(rol_ids)
-        elif isinstance(rol_ids) == list:
+        elif isinstance(rol_ids, list):
             rols = [i for i in rol_ids]
         else:
             raise TypeError()
@@ -1039,13 +1041,13 @@ class AuthLiteClient:
             "RefreshToken": refresh_token,
         }
         response = requests.post(url, headers=headers, params=params, json=data)
-        if signoff_session_and_assign:
+        if not signoff_session_and_assign:
             return response.json()
         else:
             if return_class:
-                return SignOffSessionReplace(response.json())
+                return SignOffSessionReplace(**response.json())
             else:
-                return SignOffSessionReplace(response.json()).to_dict()
+                return SignOffSessionReplace(**response.json()).to_dict()
 
     def update_role(
         self,
@@ -1091,16 +1093,16 @@ class AuthLiteClient:
             "signed_key": self._signed_key,
         }
         rols_add = []
-        if isinstance(rol_ids_to_add) == str:
+        if isinstance(rol_ids_to_add, str):
             rols_add.append(rol_ids_to_add)
-        elif isinstance(rol_ids_to_add) == list:
+        elif isinstance(rol_ids_to_add, list):
             rols_add = [i for i in rol_ids_to_add]
         else:
             raise TypeError()
         rols_rem = []
-        if isinstance(rol_ids_to_remove) == str:
+        if isinstance(rol_ids_to_remove, str):
             rols_rem.append(rol_ids_to_remove)
-        elif isinstance(rol_ids_to_remove) == list:
+        elif isinstance(rol_ids_to_remove, list):
             rols_rem = [i for i in rol_ids_to_remove]
         else:
             raise TypeError()
@@ -1117,6 +1119,6 @@ class AuthLiteClient:
             return response.json()
         else:
             if return_class:
-                return SignOffSessionReplace(response.json())
+                return SignOffSessionReplace(**response.json())
             else:
-                return SignOffSessionReplace(response.json()).to_dict()
+                return SignOffSessionReplace(**response.json()).to_dict()
