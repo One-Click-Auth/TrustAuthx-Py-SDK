@@ -188,6 +188,14 @@ class _EdgeDBRoleQuery:
             # Call the function
             response = func(*args, **kwargs)
             # Check for "X-EDGE"
+            if response.status_code <= 350:
+                pass
+            else:
+                raise HTTPError(
+                    "Request failed with status code : {} \n this code contains a msg : {}".format(
+                        response.status_code, response.text
+                    )
+                )
             x_edge = response.headers.get("X-EDGE")
             if x_edge:
                 if int(x_edge) != _EdgeDBRoleQuery.total_roles:
@@ -717,6 +725,7 @@ class AuthLiteClient:
             rtn.pop("sub")
             rtn["email"] = sub["email"]
             rtn["uid"] = sub["uid"]
+            rtn["scope"] = json.loads(rtn["scope"])
             if not return_class:
                 return rtn
             else:
@@ -1028,7 +1037,7 @@ class AuthLiteClient:
         rols = []
         if isinstance(rol_ids, str):
             rols.append(rol_ids)
-        elif isinstance(rol_ids, list):
+        elif isinstance(rol_ids,list):
             rols = [i for i in rol_ids]
         else:
             raise TypeError()
@@ -1100,7 +1109,7 @@ class AuthLiteClient:
         else:
             raise TypeError()
         rols_rem = []
-        if isinstance(rol_ids_to_remove, str):
+        if isinstance(rol_ids_to_remove,str):
             rols_rem.append(rol_ids_to_remove)
         elif isinstance(rol_ids_to_remove, list):
             rols_rem = [i for i in rol_ids_to_remove]
