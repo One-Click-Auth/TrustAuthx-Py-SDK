@@ -725,6 +725,7 @@ class AuthLiteClient:
             rtn.pop("sub")
             rtn["email"] = sub["email"]
             rtn["uid"] = sub["uid"]
+            rtn["scope"] = json.loads(rtn["scope"])
             if not return_class:
                 return rtn
             else:
@@ -1036,7 +1037,7 @@ class AuthLiteClient:
         rols = []
         if isinstance(rol_ids, str):
             rols.append(rol_ids)
-        elif isinstance(rol_ids, list):
+        elif isinstance(rol_ids,list):
             rols = [i for i in rol_ids]
         else:
             raise TypeError()
@@ -1108,7 +1109,7 @@ class AuthLiteClient:
         else:
             raise TypeError()
         rols_rem = []
-        if isinstance(rol_ids_to_remove, str):
+        if isinstance(rol_ids_to_remove,str):
             rols_rem.append(rol_ids_to_remove)
         elif isinstance(rol_ids_to_remove, list):
             rols_rem = [i for i in rol_ids_to_remove]
