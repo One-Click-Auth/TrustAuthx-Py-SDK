@@ -623,7 +623,7 @@ class AuthLiteClient:
         )
         self.__class__.instances.append(self)
 
-    def generate_url(self) -> str:
+    def generate_url(self, redirect_url:str=None) -> str:
         """
         Generates an authentication URL for the given organization.
 
@@ -635,6 +635,7 @@ class AuthLiteClient:
         """
         # Generate an authentication url for the given org
         if self.org_id:
+            if redirect_url: return f"https://app.trustauthx.com/widget/login/?org_id={self.org_id}&redirect_url={redirect_url}"
             return f"https://app.trustauthx.com/widget/login/?org_id={self.org_id}"
         else:
             raise ValueError("must provide org_id")
