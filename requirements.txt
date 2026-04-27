@@ -1,10 +1,10 @@
-﻿certifi>=2023.5.7
+certifi>=2023.5.7
 cffi>=1.15.1
 cryptography>=41.0.2
 ecdsa>=0.18.0
 idna>=3.4
 pyasn1>=0.5.0
-pycparser>=2.21
+pycparser>=3.0
 requests>=2.31.0
 rsa>=4.9
 six>=1.16.0
